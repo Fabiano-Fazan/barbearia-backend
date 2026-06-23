@@ -2,7 +2,7 @@ package com.barbearia.domain.entities;
 
 import com.barbearia.domain.enums.ProductType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -11,8 +11,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "products")
+@Builder
 public class Products {
 
     @Id
@@ -33,6 +37,9 @@ public class Products {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductType productType;
+
+    @Column(nullable = false)
+    private boolean isActive;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

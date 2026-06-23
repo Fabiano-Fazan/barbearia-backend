@@ -1,15 +1,16 @@
 package com.barbearia.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "clients")
 public class Client {
 
@@ -26,9 +27,10 @@ public class Client {
     @Column(nullable = false, unique = true)
     private String phone;
 
-    @CreationTimestamp
+    @Column(nullable = false)
+    private String address;
+
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }

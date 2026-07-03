@@ -12,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "clients")
+@Builder
 public class Client {
 
     @Id
@@ -22,13 +23,14 @@ public class Client {
     private String name;
 
     @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false, unique = true)
     private String phone;
 
     @Column(nullable = false)
     private String address;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     private LocalDateTime createdAt;
 

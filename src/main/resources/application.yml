@@ -12,7 +12,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-jwt:
-    expiration: ${JWT_EXPIRATION:900000}
-    key: ${JWT_KEY:YLeWrOYLgXvYYzN&naDhU=zf-^^WWmYZiO4wJbA^v8RKwc8c3YVTh2B7QDKaZ4%3-uYR$dn+revmbLMQk%7ZUemBJP9ndM+NDqJ5tlJy1=rjsfmQ_tRR+dDe=8SY^uN%qylOE=4O4T_FOOljDQ5m*QdXF5R^X6OJZo%+VETl+tKK-%ZsrIaUwru1M49PW**+!6qKVHQcdc!blR1TLTfTNiJk4mkP$-sMK_JjMWr+vw2eLesOa9DJTol-c#ypKhc*hOOZ9$rb0pr6&Z!j81JOA+HqVnAjGd-bA=&bmI=$Ba1RdPWI7$uQ2o*BUau56uwcCk%QFmF9WM#v!mpdai#R&0EY}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile, email
+  JWT:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}

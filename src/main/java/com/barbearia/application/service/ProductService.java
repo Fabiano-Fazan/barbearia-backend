@@ -54,11 +54,16 @@ public class ProductService {
         var product = productsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         processData(product, productRequestDTO);
-        product.setUpdatedAt(LocalDateTime.now());
         productsRepository.save(product);
         return new ProductResponseDTO(product);
      }
 
+     @Transactional
+     public void deleteProduct(UUID id) {
+        var product = productsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        productsRepository.delete(product);
+     }
 
      private void processData(Products products,ProductRequestDTO productRequestDTO) {
         products.setName(productRequestDTO.name());
@@ -67,5 +72,6 @@ public class ProductService {
         products.setDescription(productRequestDTO.description());
         products.setProductType(productRequestDTO.type());
         products.setActive(productRequestDTO.isActive());
+        products.setUpdatedAt(LocalDateTime.now());
      }
 }

@@ -1,4 +1,4 @@
-package com.barbearia.infrastructure.api;
+package com.barbearia.infrastructure.api.auth;
 
 import com.barbearia.application.dto.request.LoginRequestDTO;
 import com.barbearia.application.dto.request.RegisterRequestDTO;

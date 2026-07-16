@@ -9,9 +9,9 @@ public record ClientRequestDTO(
         @Schema(description = "Name of the client", example = "Fabiano Fazan")
         String name,
 
-        @NotBlank(message = "Email is required")
-        @Schema(description = "Email of the client", example = "fabiano.fazan@example.com")
-        String email,
+        @NotBlank(message = "Address is required")
+        @Schema(description = "Address of the client", example = "123 Main St, City, State")
+        String address,
 
         @Schema(description = "Phone of the client", example = "1234567890")
         @Pattern(

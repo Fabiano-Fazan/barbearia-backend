@@ -1,10 +1,12 @@
 package com.barbearia.application.dto.response;
 
+import com.barbearia.domain.entities.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
 public record ClientResponseDTO(
+
         @Schema(description = "Unique identifier of the client", example = "550e8400-e29b-41d4-a716-446655440000")
         UUID id,
 
@@ -20,4 +22,13 @@ public record ClientResponseDTO(
         @Schema(description = "Address of the client", example = "123 Main St, City, State")
         String address
 ) {
+        public ClientResponseDTO(Client client) {
+               this (
+                       client.getId(),
+                       client.getName(),
+                       client.getUser().getEmail(),
+                       client.getPhone(),
+                       client.getAddress()
+               );
+        }
 }

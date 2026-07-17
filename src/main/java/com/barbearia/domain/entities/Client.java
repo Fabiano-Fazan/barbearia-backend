@@ -28,6 +28,9 @@ public class Client {
     @Column(nullable = false)
     private String address;
 
+    @Column(nullable = false)
+    private boolean isActive;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;

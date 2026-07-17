@@ -6,7 +6,6 @@ import com.barbearia.domain.entities.User;
 import com.barbearia.infrastructure.persistence.ClientRepository;
 import com.barbearia.infrastructure.persistence.RolesRepository;
 import com.barbearia.infrastructure.persistence.UserRepository;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
     private final RolesRepository rolesRepository;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         assert oAuth2User != null;
@@ -62,7 +61,7 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
        });
     }
 
-    private void verifyOrCreateClient(User user,String name){
+    private void verifyOrCreateClient(User user, String name){
         boolean clientExists = clientRepository.findAll().stream()
                 .anyMatch(client -> client.getUser() != null && client.getUser().getId().equals(user.getId()));
         if (!clientExists) {
@@ -72,6 +71,7 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
                     .address("Address Default")
                     .user(user)
                     .createdAt(LocalDateTime.now())
+                    .isActive(true)
                     .build();
             clientRepository.save(newClient);
         }

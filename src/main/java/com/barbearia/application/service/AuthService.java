@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
 
-
+    @Transactional
     public void registerAdmin(RegisterRequestDTO dto) throws BadRequestException {
 
         if(userRepository.existsByEmail(dto.email())) {
@@ -46,6 +47,7 @@ public class AuthService {
                 .email(dto.email())
                 .password(passwordEncoder.encode(dto.password()))
                 .roles(Set.of(roles))
+                .isActive(true)
                 .build());
     }
 

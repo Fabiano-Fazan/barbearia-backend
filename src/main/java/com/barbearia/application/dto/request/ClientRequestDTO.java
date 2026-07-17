@@ -18,6 +18,10 @@ public record ClientRequestDTO(
                 regexp = "^\\(?\\d{2}\\)?[\\s-]?9?\\d{4}-?\\d{4}$",
                 message = "Phone number must be in the format (XX) XXXXX-XXXX or (XX) XXXX-XXXX"
         )
-        String phone
+        String phone,
+
+        @NotBlank(message = "Status is required")
+        @Schema(description = "Active status of the client", example = "true")
+        boolean isActive
 ) {
 }

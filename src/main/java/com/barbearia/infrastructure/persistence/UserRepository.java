@@ -1,5 +1,6 @@
 package com.barbearia.infrastructure.persistence;
 
+
 import com.barbearia.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

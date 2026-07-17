@@ -1,0 +1,26 @@
+package com.barbearia.infrastructure.persistence.specifications;
+
+import com.barbearia.domain.entities.Products;
+import org.springframework.data.jpa.domain.Specification;
+
+
+public class ProductsSpecifications {
+
+    public static Specification<Products> hasName(String name) {
+        return (root, query, cb) ->{
+            if (name == null || name.trim().isEmpty()) {
+                return cb.conjunction();
+            }
+            return cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        };
+    }
+
+    public static Specification<Products> hasCategory(String category) {
+        return (root, query, cb) ->{
+            if (category == null || category.trim().isEmpty()) {
+                return cb.conjunction();
+            }
+            return cb.equal(cb.lower(root.get("category")), category.toLowerCase());
+        };
+    }
+}

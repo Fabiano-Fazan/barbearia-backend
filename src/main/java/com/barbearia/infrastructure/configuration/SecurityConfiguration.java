@@ -32,7 +32,7 @@ public class SecurityConfiguration {
                         .accessDeniedHandler((request, response, accessDeniedException) -> response.setStatus(HttpStatus.FORBIDDEN.value()))))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/admin/**").permitAll()
-                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/v1/oauth2/**").permitAll()
                         .requestMatchers("/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/v1/appointments/**").authenticated()
                         .anyRequest().authenticated())

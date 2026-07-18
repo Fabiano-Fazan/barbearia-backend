@@ -34,6 +34,9 @@ public class Products {
     @Column(nullable = false)
     private String category;
 
+    @Column
+    private int durationInMinutes;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductType productType;
@@ -43,7 +46,6 @@ public class Products {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;

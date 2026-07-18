@@ -1,5 +1,6 @@
 package com.barbearia.application.service;
 
+import com.barbearia.application.dto.request.ChangePasswordRequestDTO;
 import com.barbearia.application.dto.request.LoginRequestDTO;
 import com.barbearia.application.dto.request.RegisterRequestDTO;
 import com.barbearia.application.dto.response.TokenResponseDTO;
@@ -8,6 +9,7 @@ import com.barbearia.domain.entities.User;
 import com.barbearia.infrastructure.configuration.TokenProvider;
 import com.barbearia.infrastructure.persistence.RolesRepository;
 import com.barbearia.infrastructure.persistence.UserRepository;
+import com.barbearia.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,15 +60,26 @@ public class AuthService {
                             dto.email(),
                             dto.password()
                     ));
+            User user = (User) authenticate.getPrincipal();
+
+            if (user == null){
+                throw new BadCredentialsException("Invalid credentials");
+            }
             String token = tokenProvider.getToken(authenticate);
 
-            return new TokenResponseDTO(token);
+            return new TokenResponseDTO(token, user.isMustChangePassword());
 
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid credentials");
-
-        }catch (Exception e) {
-            throw e;
         }
+    }
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequestDTO dto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
     }
 }

@@ -26,6 +26,9 @@ public record ProductResponseDTO(
         @Schema(description = "Indicates if the product is active")
         Boolean isActive,
 
+        @Schema(description = "Duration of the product in minutes", example = "30")
+        int durationInMinutes,
+
         @Schema(description = "Price of the product", example = "29.99")
         BigDecimal price
 ) {
@@ -37,6 +40,7 @@ public record ProductResponseDTO(
                         products.getCategory(),
                         products.getProductType().name(),
                         products.isActive(),
+                        products.getDurationInMinutes(),
                         products.getPrice()
                 );
         }

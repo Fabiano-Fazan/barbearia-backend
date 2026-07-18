@@ -45,9 +45,8 @@ public class TokenProvider {
                     .verify(token)
                     .getSubject();
 
-        }catch (JWTVerificationException e){
-            return e.getMessage();
-
+        } catch (JWTVerificationException e) {
+            throw new RuntimeException("Invalid token", e);
         }
     }
 

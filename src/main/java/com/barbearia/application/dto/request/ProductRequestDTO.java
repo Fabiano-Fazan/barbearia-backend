@@ -34,17 +34,14 @@ public record ProductRequestDTO(
         @Size(min = 10, max = 50, message = "Category must be between 10 and 50 characters")
         String category,
 
+        @NotNull(message = "Duration in minutes is required")
+        @Schema(description = "Duration of the product in minutes", example = "30")
+        @Size(min = 1, max = 60, message = "Duration must be between 1 and 60 minutes")
+        int durationInMinutes,
+
         @NotNull(message = "Active status is required")
         @Schema(description = "Indicates if the product is active", example = "true")
         boolean isActive
 
 ) {
-        public ProductRequestDTO(String name, String description, BigDecimal price, ProductType type, String category, boolean isActive) {
-                this.name = name;
-                this.description = description;
-                this.price = price;
-                this.type = type;
-                this.category = category;
-                this.isActive = isActive;
-        }
 }

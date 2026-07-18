@@ -34,6 +34,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean isActive;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean mustChangePassword = false;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

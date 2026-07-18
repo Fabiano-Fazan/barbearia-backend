@@ -8,14 +8,13 @@ import com.barbearia.infrastructure.persistence.ClientRepository;
 import com.barbearia.infrastructure.persistence.UserRepository;
 import com.barbearia.infrastructure.persistence.specifications.ClientSpecifications;
 import com.barbearia.shared.exceptions.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -64,7 +63,6 @@ public class ClientService {
         client.setName(clientDto.name());
         client.setAddress(clientDto.address());
         client.setPhone(clientDto.phone());
-        client.setUpdatedAt(LocalDateTime.now());
         client.setActive(clientDto.isActive());
     }
 }

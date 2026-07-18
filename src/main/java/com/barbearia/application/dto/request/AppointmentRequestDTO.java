@@ -1,5 +1,6 @@
 package com.barbearia.application.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
@@ -22,10 +23,12 @@ public record AppointmentRequestDTO(
 
         @NotBlank(message = "Start date is required")
         @Schema(description = "Start date and time of the appointment")
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime startDate,
 
         @NotBlank(message = "End date is required")
         @Schema(description = "End date and time of the appointment")
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime endDate
 ) {
 }

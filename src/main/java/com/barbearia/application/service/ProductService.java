@@ -6,6 +6,7 @@ import com.barbearia.application.dto.response.ProductResponseDTO;
 import com.barbearia.domain.entities.Products;
 import com.barbearia.infrastructure.persistence.ProductsRepository;
 import com.barbearia.infrastructure.persistence.specifications.ProductsSpecifications;
+import com.barbearia.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -24,7 +24,7 @@ public class ProductService {
     public ProductResponseDTO findById(UUID id) {
         return productsRepository.findById(id)
                 .map(ProductResponseDTO::new)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
      }
 
     public Page<ProductResponseDTO> findProducts(String name, String category, Pageable pageable) {
@@ -39,7 +39,6 @@ public class ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
         Products product = new Products();
         processData(product, productRequestDTO);
-        product.setCreatedAt(LocalDateTime.now());
         productsRepository.save(product);
         return new ProductResponseDTO(product);
      }
@@ -47,7 +46,7 @@ public class ProductService {
      @Transactional
      public ProductResponseDTO updateProduct(UUID id, ProductRequestDTO productRequestDTO) {
         Products product = productsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         processData(product, productRequestDTO);
         productsRepository.save(product);
         return new ProductResponseDTO(product);
@@ -56,7 +55,7 @@ public class ProductService {
      @Transactional
      public void deleteProduct(UUID id) {
         Products product = productsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         product.setActive(false);
         productsRepository.save(product);
      }
@@ -67,7 +66,7 @@ public class ProductService {
         products.setPrice(productRequestDTO.price());
         products.setDescription(productRequestDTO.description());
         products.setProductType(productRequestDTO.type());
+        products.setDurationInMinutes(productRequestDTO.durationInMinutes());
         products.setActive(productRequestDTO.isActive());
-        products.setUpdatedAt(LocalDateTime.now());
      }
 }

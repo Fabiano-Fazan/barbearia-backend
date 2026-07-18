@@ -9,6 +9,10 @@ import com.barbearia.infrastructure.persistence.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -16,7 +20,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Component
@@ -28,19 +31,27 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
     private final PasswordEncoder passwordEncoder;
     private final RolesRepository rolesRepository;
 
+    @Value("${GOOGLE_REDIRECT_URI}")
+    private String redirectUri;
+
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Authentication authentication) throws IOException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        assert oAuth2User != null;
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
-        User user = verifyOrCreateUser(email,name);
-        verifyOrCreateClient(user,name);
-        String token = tokenProvider.getToken(authentication);
-        String targetUrl = "http://localhost:3000/oauth2/redirect?token=" + token;
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
-
+        try {
+            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            if(oAuth2User == null) {
+                throw new BadCredentialsException("Could not process authentication with Google. User data not found.");
+            }
+            String email = oAuth2User.getAttribute("email");
+            String name = oAuth2User.getAttribute("name");
+            User user = verifyOrCreateUser(email,name);
+            verifyOrCreateClient(user,name);
+            String token = tokenProvider.getToken(authentication);
+            String targetUrl = redirectUri + "?token=" + token;
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        }catch (RuntimeException e) {
+            throw new BadRequestException("Error during OAuth2 login: " + e.getMessage());
+        }
     }
 
     private User verifyOrCreateUser(String email, String name){
@@ -70,7 +81,6 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
                     .phone("(XX) XXXXX-XXXX")
                     .address("Address Default")
                     .user(user)
-                    .createdAt(LocalDateTime.now())
                     .isActive(true)
                     .build();
             clientRepository.save(newClient);

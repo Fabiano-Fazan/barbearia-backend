@@ -1,5 +1,6 @@
 package com.barbearia.domain.entities;
 
+import com.barbearia.domain.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column
     private String description;
 
     @Column(nullable = false)
@@ -38,5 +40,9 @@ public class Appointment {
     @ManyToOne
     @JoinColumn(name = "barber_id", nullable = false)
     private Barber barber;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
 
 }

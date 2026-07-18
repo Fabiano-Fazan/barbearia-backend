@@ -35,4 +35,8 @@ public class Appointment {
     @JoinColumn(name = "products_id", nullable = false)
     private Products products;
 
+    @ManyToOne
+    @JoinColumn(name = "barber_id", nullable = false)
+    private Barber barber;
+
 }

@@ -42,7 +42,7 @@ public class Products {
     private ProductType productType;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

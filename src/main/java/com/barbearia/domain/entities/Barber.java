@@ -46,6 +46,6 @@ public class Barber {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-
-
+    @Column(nullable = false)
+    private Boolean isActive;
 }

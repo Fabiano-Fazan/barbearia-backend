@@ -39,7 +39,7 @@ public record ProductResponseDTO(
                         products.getDescription(),
                         products.getCategory(),
                         products.getProductType().name(),
-                        products.isActive(),
+                        products.getIsActive(),
                         products.getDurationInMinutes(),
                         products.getPrice()
                 );

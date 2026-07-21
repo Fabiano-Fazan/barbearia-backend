@@ -53,8 +53,8 @@ public class ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
         User user = client.getUser();
-        client.setActive(false);
-        user.setActive(false);
+        client.setIsActive(false);
+        user.setIsActive(false);
         clientRepository.save(client);
         userRepository.save(user);
     }
@@ -63,6 +63,6 @@ public class ClientService {
         client.setName(clientDto.name());
         client.setAddress(clientDto.address());
         client.setPhone(clientDto.phone());
-        client.setActive(clientDto.isActive());
+        client.setIsActive(clientDto.isActive());
     }
 }

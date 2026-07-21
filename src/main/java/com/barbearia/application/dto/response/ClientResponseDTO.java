@@ -23,7 +23,7 @@ public record ClientResponseDTO(
         String address,
 
         @Schema(description = "Active status of the client", example = "true")
-        boolean isActive
+        Boolean isActive
 ) {
         public ClientResponseDTO(Client client) {
                this (
@@ -32,7 +32,7 @@ public record ClientResponseDTO(
                        client.getUser().getEmail(),
                        client.getPhone(),
                        client.getAddress(),
-                       client.isActive()
+                       client.getIsActive()
                );
         }
 }

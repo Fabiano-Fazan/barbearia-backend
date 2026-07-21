@@ -2,10 +2,7 @@ package com.barbearia.application.dto.request;
 
 import com.barbearia.domain.enums.ProductType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
@@ -36,12 +33,13 @@ public record ProductRequestDTO(
 
         @NotNull(message = "Duration in minutes is required")
         @Schema(description = "Duration of the product in minutes", example = "30")
-        @Size(min = 1, max = 60, message = "Duration must be between 1 and 60 minutes")
+        @Max(value = 60, message = "Duration must not exceed 60 minutes")
+        @Min(value = 5, message = "Duration must be at least 5 minutes")
         int durationInMinutes,
 
         @NotNull(message = "Active status is required")
         @Schema(description = "Indicates if the product is active", example = "true")
-        boolean isActive
+        Boolean isActive
 
 ) {
 }

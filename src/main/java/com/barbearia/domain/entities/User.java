@@ -32,7 +32,7 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @Column(nullable = false)
     @Builder.Default

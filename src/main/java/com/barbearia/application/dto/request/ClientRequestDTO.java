@@ -1,6 +1,7 @@
 package com.barbearia.application.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record ClientRequestDTO(
@@ -20,8 +21,8 @@ public record ClientRequestDTO(
         )
         String phone,
 
-        @NotBlank(message = "Status is required")
+        @NotNull(message = "Status is required")
         @Schema(description = "Active status of the client", example = "true")
-        boolean isActive
+        Boolean isActive
 ) {
 }

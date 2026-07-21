@@ -34,7 +34,7 @@ public class ClientController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ClientResponseDTO> updateClient(@RequestParam UUID id, @RequestBody ClientRequestDTO clientDTO) {
+    public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable UUID id, @RequestBody ClientRequestDTO clientDTO) {
         ClientResponseDTO updatedClient = clientService.updateClient(id, clientDTO);
         return ResponseEntity.ok(updatedClient);
     }

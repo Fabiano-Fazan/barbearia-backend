@@ -56,7 +56,7 @@ public class ProductService {
      public void deleteProduct(UUID id) {
         Products product = productsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-        product.setActive(false);
+        product.setIsActive(false);
         productsRepository.save(product);
      }
 
@@ -67,6 +67,6 @@ public class ProductService {
         products.setDescription(productRequestDTO.description());
         products.setProductType(productRequestDTO.type());
         products.setDurationInMinutes(productRequestDTO.durationInMinutes());
-        products.setActive(productRequestDTO.isActive());
+        products.setIsActive(productRequestDTO.isActive());
      }
 }

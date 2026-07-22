@@ -1,5 +1,6 @@
 package com.barbearia.application.dto.response;
 
+import com.barbearia.domain.entities.Appointment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -20,9 +21,23 @@ public record AppointmentResponseDTO(
         UUID productId,
 
         @Schema(description = "Start date and time of the appointment")
-        LocalDateTime startDate,
+        LocalDateTime startTime,
 
         @Schema(description = "End date and time of the appointment")
-        LocalDateTime endDate
+        LocalDateTime endTime,
+
+        @Schema(description = "Observation for the appointment")
+        String observation
 ) {
+        public AppointmentResponseDTO(Appointment appointment) {
+            this(
+                    appointment.getId(),
+                    appointment.getClient().getId(),
+                    appointment.getBarber().getId(),
+                    appointment.getProducts().getId(),
+                    appointment.getStartTime(),
+                    appointment.getEndTime(),
+                    appointment.getObservation()
+            );
+        }
 }

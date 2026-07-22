@@ -21,7 +21,7 @@ public class Appointment {
     private UUID id;
 
     @Column
-    private String description;
+    private String observation;
 
     @Column(nullable = false)
     private LocalDateTime startTime;

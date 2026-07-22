@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,27 +19,31 @@ public class ClientController {
 
     private final ClientService clientService;
 
+    @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")
     @GetMapping
     public ResponseEntity<Page<ClientResponseDTO>> getClients(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone,
             Pageable pageable) {
-        Page<ClientResponseDTO> clients = clientService.findAll(name, phone, pageable);
+        Page<ClientResponseDTO> clients = clientService.findClients(name, phone, pageable);
         return ResponseEntity.ok(clients);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")
     @GetMapping("/{id}")
     public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable UUID id) {
         ClientResponseDTO client = clientService.findById(id);
         return ResponseEntity.ok(client);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")
     @PatchMapping("/{id}")
     public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable UUID id, @RequestBody ClientRequestDTO clientDTO) {
         ClientResponseDTO updatedClient = clientService.updateClient(id, clientDTO);
         return ResponseEntity.ok(updatedClient);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable UUID id) {
         clientService.deleteClient(id);

@@ -24,11 +24,14 @@ public record AppointmentRequestDTO(
         @NotNull(message = "Start date is required")
         @Schema(description = "Start date and time of the appointment")
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        LocalDateTime startDate,
+        LocalDateTime startTime,
 
         @NotNull(message = "End date is required")
         @Schema(description = "End date and time of the appointment")
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        LocalDateTime endDate
+        LocalDateTime endTime,
+
+        @Schema(description = "Observation for the appointment")
+        String observation
 ) {
 }

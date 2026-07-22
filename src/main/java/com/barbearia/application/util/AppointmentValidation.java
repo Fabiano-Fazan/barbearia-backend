@@ -20,6 +20,7 @@ public class AppointmentValidation {
     }
 
     public void validateConflict(UUID barberId, UUID clientId, LocalDateTime startTime, LocalDateTime endTime){
+
         if (startTime.isBefore(LocalDateTime.now())) {
             throw new AppointmentConflictException("Appointment cannot be scheduled in the past");
         }

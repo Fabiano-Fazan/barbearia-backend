@@ -23,7 +23,7 @@ public class SecurityConfiguration {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception{
+    public SecurityFilterChain configure(HttpSecurity http){
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -31,9 +31,9 @@ public class SecurityConfiguration {
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                         .accessDeniedHandler((request, response, accessDeniedException) -> response.setStatus(HttpStatus.FORBIDDEN.value()))))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/admin/**").permitAll()
-                        .requestMatchers("/v1/oauth2/**").permitAll()
-                        .requestMatchers("/v1/users/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers("/v1/barbers/**").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers("/v1/products/**").hasAnyRole("ADMIN", "BARBER", "CLIENT")
                         .requestMatchers("/v1/appointments/**").authenticated()
                         .anyRequest().authenticated())
 

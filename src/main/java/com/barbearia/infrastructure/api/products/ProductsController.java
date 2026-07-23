@@ -26,16 +26,10 @@ public class ProductsController {
     public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) UUID productId,
             Pageable pageable){
-        Page<ProductResponseDTO> products = productsService.findProducts(name, category, pageable);
+        Page<ProductResponseDTO> products = productsService.findProducts(name, category, productId, pageable);
         return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'BARBER', 'CLIENT') ")
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable UUID id) {
-        ProductResponseDTO product = productsService.findById(id);
-        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")

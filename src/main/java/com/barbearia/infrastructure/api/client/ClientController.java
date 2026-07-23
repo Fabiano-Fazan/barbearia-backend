@@ -24,16 +24,10 @@ public class ClientController {
     public ResponseEntity<Page<ClientResponseDTO>> getClients(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone,
+            @RequestParam(required = false) UUID id,
             Pageable pageable) {
-        Page<ClientResponseDTO> clients = clientService.findClients(name, phone, pageable);
+        Page<ClientResponseDTO> clients = clientService.findClients(name, phone, id, pageable);
         return ResponseEntity.ok(clients);
-    }
-
-    @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")
-    @GetMapping("/{id}")
-    public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable UUID id) {
-        ClientResponseDTO client = clientService.findById(id);
-        return ResponseEntity.ok(client);
     }
 
     @PreAuthorize("hasRole('ADMIN') or  hasRole('BARBER') ")

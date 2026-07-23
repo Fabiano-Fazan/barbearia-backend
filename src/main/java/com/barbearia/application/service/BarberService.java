@@ -37,18 +37,13 @@ public class BarberService {
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
 
-    public Page<BarberResponseDTO> findBarbers(String name, String phone, Pageable pageable){
+    public Page<BarberResponseDTO> findBarbers(String name, String phone, UUID barberId, Pageable pageable){
         Specification<Barber> specification = Specification
                 .where(BarberSpecifications.hasName(name))
-                .and(BarberSpecifications.hasPhone(phone));
+                .and(BarberSpecifications.hasPhone(phone))
+                .and(BarberSpecifications.hasId(barberId));
         return barberRepository.findAll(specification, pageable)
                 .map(BarberResponseDTO::new);
-    }
-
-    public BarberResponseDTO findById(UUID id){
-        return barberRepository.findById(id)
-                .map(BarberResponseDTO::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
     }
 
     @Transactional

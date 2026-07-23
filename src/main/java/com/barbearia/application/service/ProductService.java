@@ -21,16 +21,11 @@ import java.util.UUID;
 public class ProductService {
     private final ProductsRepository productsRepository;
 
-    public ProductResponseDTO findById(UUID id) {
-        return productsRepository.findById(id)
-                .map(ProductResponseDTO::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-     }
-
-    public Page<ProductResponseDTO> findProducts(String name, String category, Pageable pageable) {
+    public Page<ProductResponseDTO> findProducts(String name, String category, UUID productId, Pageable pageable) {
         Specification<Products> specification = Specification
                 .where(ProductsSpecifications.hasName(name))
-                .and(ProductsSpecifications.hasCategory(category));
+                .and(ProductsSpecifications.hasCategory(category))
+                .and(ProductsSpecifications.hasId(productId));
         return productsRepository.findAll(specification, pageable)
                 .map(ProductResponseDTO::new);
      }

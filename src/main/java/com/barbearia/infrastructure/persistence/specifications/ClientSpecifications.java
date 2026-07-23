@@ -3,6 +3,8 @@ package com.barbearia.infrastructure.persistence.specifications;
 import com.barbearia.domain.entities.Client;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.UUID;
+
 public class ClientSpecifications {
 
     public static Specification<Client> hasName(String name) {
@@ -20,6 +22,15 @@ public class ClientSpecifications {
                 return cb.conjunction();
             }
             return cb.equal(cb.lower(root.get("phone")), phone.toLowerCase());
+        };
+    }
+
+    public static Specification<Client> hasId(UUID id) {
+        return (root, query, cb) ->{
+            if (id == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("id"), id);
         };
     }
 }

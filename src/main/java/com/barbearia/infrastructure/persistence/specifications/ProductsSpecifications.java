@@ -3,6 +3,8 @@ package com.barbearia.infrastructure.persistence.specifications;
 import com.barbearia.domain.entities.Products;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.UUID;
+
 
 public class ProductsSpecifications {
 
@@ -23,4 +25,14 @@ public class ProductsSpecifications {
             return cb.equal(cb.lower(root.get("category")), category.toLowerCase());
         };
     }
+
+    public static Specification<Products> hasId(UUID id) {
+        return (root, query, cb) -> {
+            if (id == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("id"), id);
+        };
+    }
+
 }

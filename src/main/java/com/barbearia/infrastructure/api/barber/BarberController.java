@@ -26,16 +26,10 @@ public class BarberController {
     public ResponseEntity<Page<BarberResponseDTO>> getBarbers(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone,
+            @RequestParam(required = false) UUID id,
             Pageable pageable){
-        Page<BarberResponseDTO> barbers = barberService.findBarbers(name, phone, pageable);
+        Page<BarberResponseDTO> barbers = barberService.findBarbers(name, phone, id, pageable);
         return new ResponseEntity<>(barbers, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
-    @GetMapping("/{id}")
-    public ResponseEntity<BarberResponseDTO> getBarberById(@PathVariable UUID id){
-        BarberResponseDTO barber = barberService.findById(id);
-        return new ResponseEntity<>(barber, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

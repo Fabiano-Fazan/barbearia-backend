@@ -9,8 +9,12 @@ import com.barbearia.infrastructure.persistence.AppointmentRepository;
 import com.barbearia.infrastructure.persistence.BarberRepository;
 import com.barbearia.infrastructure.persistence.ClientRepository;
 import com.barbearia.infrastructure.persistence.ProductsRepository;
+import com.barbearia.infrastructure.persistence.specifications.AppointmentSpecifications;
 import com.barbearia.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +31,22 @@ public class AppointmentService {
     private final ProductsRepository productsRepository;
     private final AppointmentValidation appointmentValidation;
 
-    public AppointmentResponseDTO findById(UUID id) {
-       return  appointmentRepository.findById(id)
-                .map(AppointmentResponseDTO::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+    public Page<AppointmentResponseDTO> findAppointments(UUID appointmentId, UUID clientId, UUID barberId, Pageable pageable) {
+        Specification<Appointment> specification = Specification
+                .where(AppointmentSpecifications.hasId(appointmentId))
+                .and(AppointmentSpecifications.hasClient(clientId))
+                .and(AppointmentSpecifications.hasBarber(barberId));
+        return appointmentRepository.findAll(specification, pageable)
+                .map(AppointmentResponseDTO::new);
+    }
+
+    public Page<AppointmentResponseDTO> findAppointmentsByStatus(Pageable pageable) {
+        Specification<Appointment> specification = Specification
+                .where(AppointmentSpecifications.hasStatus(AppointmentStatus.SCHEDULED))
+                .and(AppointmentSpecifications.hasStatus(AppointmentStatus.CANCELLED))
+                .and(AppointmentSpecifications.hasStatus(AppointmentStatus.COMPLETED));
+        return appointmentRepository.findAll(specification, pageable)
+                .map(AppointmentResponseDTO::new);
     }
 
     @Transactional
@@ -43,6 +59,16 @@ public class AppointmentService {
         return new AppointmentResponseDTO(appointment);
     }
 
+    @Transactional
+    public void  delete(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new IllegalArgumentException("Cannot delete a completed appointment");
+        }
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment);
+    }
 
     private void processData(Appointment appointment, AppointmentRequestDTO dto) {
         appointment.setBarber(barberRepository.findById(dto.barberId())

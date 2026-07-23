@@ -25,18 +25,13 @@ public class ClientService {
     private final UserRepository userRepository;
 
 
-    public Page<ClientResponseDTO> findClients(String name, String phone, Pageable pageable) {
+    public Page<ClientResponseDTO> findClients(String name, String phone, UUID clientId, Pageable pageable) {
         Specification<Client> specification = Specification
                 .where(ClientSpecifications.hasName(name))
-                .and(ClientSpecifications.hasPhone(phone));
+                .and(ClientSpecifications.hasPhone(phone))
+                .and(ClientSpecifications.hasId(clientId));
         return clientRepository.findAll(specification, pageable)
                 .map(ClientResponseDTO::new);
-    }
-
-    public ClientResponseDTO findById(UUID id) {
-        return clientRepository.findById(id)
-                .map(ClientResponseDTO::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
     }
 
     @Transactional

@@ -2,17 +2,14 @@ package com.barbearia.infrastructure.persistence;
 
 import com.barbearia.domain.entities.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
-
-    Optional<Appointment> findByBarberId(UUID id);
-    Optional<Appointment> findByClientId(UUID id);
+public interface AppointmentRepository extends JpaRepository<Appointment, UUID>, JpaSpecificationExecutor<Appointment> {
 
     @Query("""
         SELECT EXISTS (

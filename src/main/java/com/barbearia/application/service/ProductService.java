@@ -24,8 +24,8 @@ public class ProductService {
     public Page<ProductResponseDTO> findProducts(String name, String category, UUID productId, Pageable pageable) {
         Specification<Products> specification = Specification
                 .where(ProductsSpecifications.hasName(name))
-                .and(ProductsSpecifications.hasCategory(category))
-                .and(ProductsSpecifications.hasId(productId));
+                .or(ProductsSpecifications.hasCategory(category))
+                .or(ProductsSpecifications.hasId(productId));
         return productsRepository.findAll(specification, pageable)
                 .map(ProductResponseDTO::new);
      }
@@ -34,8 +34,7 @@ public class ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
         Products product = new Products();
         processData(product, productRequestDTO);
-        productsRepository.save(product);
-        return new ProductResponseDTO(product);
+        return new ProductResponseDTO( productsRepository.save(product));
      }
 
      @Transactional
@@ -43,8 +42,7 @@ public class ProductService {
         Products product = productsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         processData(product, productRequestDTO);
-        productsRepository.save(product);
-        return new ProductResponseDTO(product);
+        return new ProductResponseDTO( productsRepository.save(product));
      }
 
      @Transactional

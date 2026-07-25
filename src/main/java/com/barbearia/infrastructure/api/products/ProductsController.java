@@ -23,7 +23,7 @@ public class ProductsController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER', 'CLIENT') ")
     @GetMapping
-    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(
+    public ResponseEntity<Page<ProductResponseDTO>> getProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) UUID productId,

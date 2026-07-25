@@ -66,6 +66,7 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
                    .name(name)
                    .password(passwordEncoder.encode("defaultPassword"))
                    .roles(Set.of(clientRole))
+                   .isActive(true)
                    .build();
 
            return userRepository.save(newUser);

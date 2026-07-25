@@ -2,12 +2,14 @@ package com.barbearia.application.service;
 
 import com.barbearia.application.dto.request.ClientRequestDTO;
 import com.barbearia.application.dto.response.ClientResponseDTO;
+import com.barbearia.application.util.AuthenticatedUserProvider;
 import com.barbearia.domain.entities.Client;
 import com.barbearia.domain.entities.User;
 import com.barbearia.infrastructure.persistence.ClientRepository;
 import com.barbearia.infrastructure.persistence.UserRepository;
 import com.barbearia.infrastructure.persistence.specifications.ClientSpecifications;
 import com.barbearia.shared.exceptions.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +25,12 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    public ClientResponseDTO getCurrentClient(){
+        Client client = authenticatedUserProvider.getCurrentClient();
+        return new ClientResponseDTO(client);
+    }
 
     public Page<ClientResponseDTO> findClients(String name, String phone, UUID clientId, Pageable pageable) {
         Specification<Client> specification = Specification
@@ -35,18 +42,24 @@ public class ClientService {
     }
 
     @Transactional
-    public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) {
+    public ClientResponseDTO updateCurrentClient(ClientRequestDTO clientDto) {
+        Client client = authenticatedUserProvider.getCurrentClient();
+        processData(client, clientDto);
+        return new ClientResponseDTO(clientRepository.save(client));
+    }
+
+    @Transactional
+    public ClientResponseDTO updateClient(UUID id, @Valid ClientRequestDTO clientDTO) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
-        processData(client, clientDto);
-        clientRepository.save(client);
-        return new ClientResponseDTO(client);
+        processData(client, clientDTO);
+
+        return new ClientResponseDTO(clientRepository.save(client));
     }
 
     @Transactional
     public void deleteClient(UUID id) {
-        Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+        Client client = authenticatedUserProvider.getCurrentClient();
         User user = client.getUser();
         client.setIsActive(false);
         user.setIsActive(false);
@@ -58,6 +71,5 @@ public class ClientService {
         client.setName(clientDto.name());
         client.setAddress(clientDto.address());
         client.setPhone(clientDto.phone());
-        client.setIsActive(clientDto.isActive());
     }
 }

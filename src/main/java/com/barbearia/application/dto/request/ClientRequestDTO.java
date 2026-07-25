@@ -1,7 +1,6 @@
 package com.barbearia.application.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record ClientRequestDTO(
@@ -19,10 +18,6 @@ public record ClientRequestDTO(
                 regexp = "^\\(?\\d{2}\\)?[\\s-]?9?\\d{4}-?\\d{4}$",
                 message = "Phone number must be in the format (XX) XXXXX-XXXX or (XX) XXXX-XXXX"
         )
-        String phone,
-
-        @NotNull(message = "Status is required")
-        @Schema(description = "Active status of the client", example = "true")
-        Boolean isActive
+        String phone
 ) {
 }

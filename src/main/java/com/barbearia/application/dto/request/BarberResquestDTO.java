@@ -25,11 +25,7 @@ public record BarberResquestDTO(
 
         @NotNull(message = "List of product IDs is required")
         @Schema(description = "List of product IDs associated with the barber")
-        List<UUID> productsId,
-
-        @NotNull(message = "Active status is required")
-        @Schema(description = "Indicates if the barber is active", example = "true")
-        Boolean isActive
+        List<UUID> productsId
 
 ) {
 }

@@ -21,7 +21,13 @@ public class BarberController {
 
     private final BarberService barberService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @GetMapping("/{me}")
+    public ResponseEntity<BarberResponseDTO> getCurrentBarber() {
+        BarberResponseDTO barber = barberService.getCurrentBarber();
+        return new ResponseEntity<>(barber, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<BarberResponseDTO>> getBarbers(
             @RequestParam(required = false) String name,
@@ -40,9 +46,15 @@ public class BarberController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<BarberResponseDTO> updateBarber(@PathVariable UUID id, @RequestBody @Valid BarberResquestDTO barberRequest){
         BarberResponseDTO updatedBarber = barberService.update(id, barberRequest);
+        return new ResponseEntity<>(updatedBarber, HttpStatus.OK);
+    }
+
+    @PutMapping("/{me}")
+    public ResponseEntity<BarberResponseDTO> updateCurrentBarber(@RequestBody @Valid BarberResquestDTO barberRequest){
+        BarberResponseDTO updatedBarber = barberService.updateCurrentBarber(barberRequest);
         return new ResponseEntity<>(updatedBarber, HttpStatus.OK);
     }
 

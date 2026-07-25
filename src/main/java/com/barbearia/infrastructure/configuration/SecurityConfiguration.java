@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -34,7 +36,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers("/v1/barbers/**").hasAnyRole("ADMIN", "CLIENT")
                         .requestMatchers("/v1/products/**").hasAnyRole("ADMIN", "BARBER", "CLIENT")
-                        .requestMatchers("/v1/appointments/**").authenticated()
+                        .requestMatchers("/v1/appointments/**").hasAnyRole("ADMIN", "BARBER", "CLIENT")
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth2 -> oauth2

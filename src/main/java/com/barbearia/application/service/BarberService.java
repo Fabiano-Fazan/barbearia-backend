@@ -2,6 +2,7 @@ package com.barbearia.application.service;
 
 import com.barbearia.application.dto.request.BarberResquestDTO;
 import com.barbearia.application.dto.response.BarberResponseDTO;
+import com.barbearia.application.util.AuthenticatedUserProvider;
 import com.barbearia.application.util.TemporaryPasswordGenerator;
 import com.barbearia.domain.entities.Barber;
 import com.barbearia.domain.entities.Products;
@@ -36,6 +37,12 @@ public class BarberService {
     private final ProductsRepository productsRepository;
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
+
+    public BarberResponseDTO getCurrentBarber() {
+        Barber barber = authenticatedUserProvider.getCurrentBarber();
+        return new BarberResponseDTO(barber);
+    }
 
     public Page<BarberResponseDTO> findBarbers(String name, String phone, UUID barberId, Pageable pageable){
         Specification<Barber> specification = Specification
@@ -88,6 +95,13 @@ public class BarberService {
     }
 
     @Transactional
+    public BarberResponseDTO  updateCurrentBarber(BarberResquestDTO dto){
+        Barber barber = authenticatedUserProvider.getCurrentBarber();
+        processData(barber, dto);
+        return new BarberResponseDTO(barberRepository.save(barber), null);
+    }
+
+    @Transactional
     public void delete(UUID id){
         Barber barber = barberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
@@ -99,6 +113,5 @@ public class BarberService {
         barber.setName(dto.name());
         barber.setPhone(dto.phone());
         barber.setSpecialties(productsRepository.findAllById(dto.productsId()));
-        barber.setIsActive(dto.isActive());
     }
 }

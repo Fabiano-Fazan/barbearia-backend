@@ -3,13 +3,13 @@ package com.barbearia.application.service;
 import com.barbearia.application.dto.request.AppointmentRequestDTO;
 import com.barbearia.application.dto.response.AppointmentResponseDTO;
 import com.barbearia.application.util.AppointmentValidation;
+import com.barbearia.application.util.AuthenticatedUserProvider;
 import com.barbearia.domain.entities.Appointment;
 import com.barbearia.domain.enums.AppointmentStatus;
 import com.barbearia.infrastructure.persistence.AppointmentRepository;
-import com.barbearia.infrastructure.persistence.BarberRepository;
-import com.barbearia.infrastructure.persistence.ClientRepository;
 import com.barbearia.infrastructure.persistence.ProductsRepository;
 import com.barbearia.infrastructure.persistence.specifications.AppointmentSpecifications;
+import com.barbearia.shared.exceptions.ForbiddenOperationException;
 import com.barbearia.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,31 +26,35 @@ import java.util.UUID;
 public class AppointmentService {
 
     private  final AppointmentRepository appointmentRepository;
-    private final BarberRepository barberRepository;
-    private final ClientRepository clientRepository;
     private final ProductsRepository productsRepository;
     private final AppointmentValidation appointmentValidation;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
-    public Page<AppointmentResponseDTO> findAppointments(UUID appointmentId, UUID clientId, UUID barberId, Pageable pageable) {
+    public Page<AppointmentResponseDTO> findAppointments(UUID appointmentId, UUID clientId, UUID barberId, AppointmentStatus status, Pageable pageable) {
+        if(authenticatedUserProvider.isClient()){
+            clientId = authenticatedUserProvider.getCurrentClient().getId();
+        } else if (authenticatedUserProvider.isBarber()) {
+            barberId = authenticatedUserProvider.getCurrentBarber().getId();
+        }
         Specification<Appointment> specification = Specification
                 .where(AppointmentSpecifications.hasId(appointmentId))
+                .and(AppointmentSpecifications.hasStatus(status))
                 .and(AppointmentSpecifications.hasClient(clientId))
                 .and(AppointmentSpecifications.hasBarber(barberId));
         return appointmentRepository.findAll(specification, pageable)
                 .map(AppointmentResponseDTO::new);
     }
 
-    public Page<AppointmentResponseDTO> findAppointmentsByStatus(Pageable pageable) {
-        Specification<Appointment> specification = Specification
-                .where(AppointmentSpecifications.hasStatus(AppointmentStatus.SCHEDULED))
-                .and(AppointmentSpecifications.hasStatus(AppointmentStatus.CANCELLED))
-                .and(AppointmentSpecifications.hasStatus(AppointmentStatus.COMPLETED));
-        return appointmentRepository.findAll(specification, pageable)
-                .map(AppointmentResponseDTO::new);
-    }
-
     @Transactional
     public AppointmentResponseDTO create(AppointmentRequestDTO dto) {
+        if (authenticatedUserProvider.isClient()
+                && !authenticatedUserProvider.getCurrentClient().getId().equals(dto.clientId())) {
+            throw new ForbiddenOperationException("You can only create appointments for yourself");
+        }
+        if (authenticatedUserProvider.isBarber()
+                && !authenticatedUserProvider.getCurrentBarber().getId().equals(dto.barberId())) {
+            throw new ForbiddenOperationException("You can only create appointments for yourself");
+        }
         Appointment appointment = new Appointment();
         processData(appointment, dto);
         LocalDateTime endDateTime = appointmentValidation.calculateEndTime(dto.startTime(), appointment.getProducts());
@@ -61,24 +65,33 @@ public class AppointmentService {
 
     @Transactional
     public void  delete(UUID id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
-        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
-            throw new IllegalArgumentException("Cannot delete a completed appointment");
-        }
+        Appointment appointment = canDeleteAppointment(id);
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
     }
 
     private void processData(Appointment appointment, AppointmentRequestDTO dto) {
-        appointment.setBarber(barberRepository.findById(dto.barberId())
-                .orElseThrow(() -> new ResourceNotFoundException("Barber not found")));
-        appointment.setClient(clientRepository.findById(dto.clientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found")));
         appointment.setProducts(productsRepository.findById(dto.productId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found")));
         appointment.setStartTime(dto.startTime());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setObservation(dto.observation());
+    }
+
+    private Appointment canDeleteAppointment(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+        if (authenticatedUserProvider.isClient()
+                && !appointment.getClient().getId().equals(authenticatedUserProvider.getCurrentClient().getId())) {
+            throw new ForbiddenOperationException("You can only cancel your own appointments");
+        }
+        if (authenticatedUserProvider.isBarber()
+                && !appointment.getBarber().getId().equals(authenticatedUserProvider.getCurrentBarber().getId())) {
+            throw new ForbiddenOperationException("You can only cancel appointments for yourself");
+        }
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cannot delete a completed or cancelled appointment");
+        }
+        return appointment;
     }
 }

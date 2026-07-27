@@ -21,7 +21,7 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @GetMapping("/{me}")
+    @GetMapping("/me")
     public ResponseEntity<ClientResponseDTO> getCurrentClient() {
         ClientResponseDTO client = clientService.getCurrentClient();
         return ResponseEntity.ok(client);
@@ -38,8 +38,7 @@ public class ClientController {
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
 
-
-    @PutMapping("/{me}")
+    @PutMapping("/me")
     public ResponseEntity<ClientResponseDTO> updateCurrentClient(@RequestBody @Valid ClientRequestDTO clientDTO) {
         ClientResponseDTO updatedCurrentClient = clientService.updateCurrentClient(clientDTO);
         return new ResponseEntity<>(updatedCurrentClient, HttpStatus.OK);
@@ -52,7 +51,13 @@ public class ClientController {
         return new ResponseEntity<>(updatedClient, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentClient() {
+        clientService.deleteCurrentClient();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable UUID id) {
         clientService.deleteClient(id);

@@ -35,7 +35,7 @@ public class Products {
     private String category;
 
     @Column
-    private int durationInMinutes;
+    private Integer durationInMinutes;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

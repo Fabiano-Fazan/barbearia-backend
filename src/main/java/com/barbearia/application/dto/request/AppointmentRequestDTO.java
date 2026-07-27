@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record AppointmentRequestDTO(
@@ -19,7 +21,7 @@ public record AppointmentRequestDTO(
 
         @NotNull(message = "Product ID is required")
         @Schema(description = "ID of the product", example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID productId,
+        List<UUID> productId,
 
         @NotNull(message = "Start date is required")
         @Schema(description = "Start date and time of the appointment")
@@ -32,6 +34,12 @@ public record AppointmentRequestDTO(
         LocalDateTime endTime,
 
         @Schema(description = "Observation for the appointment")
-        String observation
+        String observation,
+
+        @NotNull(message = "Price is required")
+        @Schema(description = "Price of the appointment")
+        BigDecimal price
+
+
 ) {
 }

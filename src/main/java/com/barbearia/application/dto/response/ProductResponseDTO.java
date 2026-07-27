@@ -27,7 +27,7 @@ public record ProductResponseDTO(
         Boolean isActive,
 
         @Schema(description = "Duration of the product in minutes", example = "30")
-        int durationInMinutes,
+        Integer durationInMinutes,
 
         @Schema(description = "Price of the product", example = "29.99")
         BigDecimal price

@@ -1,5 +1,6 @@
 package com.barbearia.application.util;
 
+import com.barbearia.domain.entities.Appointment;
 import com.barbearia.domain.entities.Products;
 import com.barbearia.infrastructure.persistence.AppointmentRepository;
 import com.barbearia.shared.exceptions.AppointmentConflictException;
@@ -15,8 +16,12 @@ public class AppointmentValidation {
 
     private final AppointmentRepository appointmentRepository;
 
-    public LocalDateTime calculateEndTime(LocalDateTime startTime, Products products) {
-        return startTime.plusMinutes(products.getDurationInMinutes());
+    public LocalDateTime calculateEndTime(Appointment appointment) {
+        LocalDateTime startTime = appointment.getStartTime();
+        return startTime.plusMinutes(
+                appointment.getProducts()
+                        .stream()
+                        .mapToInt(Products::getDurationInMinutes).sum());
     }
 
     public void validateConflict(UUID barberId, UUID clientId, LocalDateTime startTime, LocalDateTime endTime){

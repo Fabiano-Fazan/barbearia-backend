@@ -102,11 +102,24 @@ public class BarberService {
     }
 
     @Transactional
+    public void deleteCurrentBarber(){
+        Barber barber = authenticatedUserProvider.getCurrentBarber();
+        User user = barber.getUser();
+        barber.setIsActive(false);
+        user.setIsActive(false);
+        barberRepository.save(barber);
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void delete(UUID id){
         Barber barber = barberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
+        User user = barber.getUser();
         barber.setIsActive(false);
+        user.setIsActive(false);
         barberRepository.save(barber);
+        userRepository.save(user);
     }
 
     private void processData(Barber barber,BarberResquestDTO dto) {

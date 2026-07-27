@@ -12,7 +12,6 @@ import java.util.UUID;
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID>, JpaSpecificationExecutor<Appointment> {
 
     @Query("""
-
             SELECT EXISTS (
             SELECT 1 FROM Appointment a
             WHERE a.barber.id = :barberId
@@ -27,7 +26,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>,
     );
 
     @Query("""
-        SELECT EXISTS (
+            SELECT EXISTS (
             SELECT 1 FROM Appointment a
             WHERE a.client.id = :clientId
             AND a.startTime < :endTime

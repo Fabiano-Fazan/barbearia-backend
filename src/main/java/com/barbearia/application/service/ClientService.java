@@ -53,12 +53,22 @@ public class ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
         processData(client, clientDTO);
-
         return new ClientResponseDTO(clientRepository.save(client));
     }
 
     @Transactional
     public void deleteClient(UUID id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+        User user = client.getUser();
+        client.setIsActive(false);
+        user.setIsActive(false);
+        clientRepository.save(client);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteCurrentClient() {
         Client client = authenticatedUserProvider.getCurrentClient();
         User user = client.getUser();
         client.setIsActive(false);

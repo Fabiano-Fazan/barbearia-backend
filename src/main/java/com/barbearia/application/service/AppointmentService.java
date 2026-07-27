@@ -5,6 +5,7 @@ import com.barbearia.application.dto.response.AppointmentResponseDTO;
 import com.barbearia.application.util.AppointmentValidation;
 import com.barbearia.application.util.AuthenticatedUserProvider;
 import com.barbearia.domain.entities.Appointment;
+import com.barbearia.domain.entities.Products;
 import com.barbearia.domain.enums.AppointmentStatus;
 import com.barbearia.infrastructure.persistence.AppointmentRepository;
 import com.barbearia.infrastructure.persistence.ProductsRepository;
@@ -18,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -57,8 +59,9 @@ public class AppointmentService {
         }
         Appointment appointment = new Appointment();
         processData(appointment, dto);
-        LocalDateTime endDateTime = appointmentValidation.calculateEndTime(dto.startTime(), appointment.getProducts());
+        LocalDateTime endDateTime = appointmentValidation.calculateEndTime(appointment);
         appointmentValidation.validateConflict(dto.barberId(), dto.clientId(), dto.startTime(), endDateTime);
+        appointment.setEndTime(endDateTime);
         appointmentRepository.save(appointment);
         return new AppointmentResponseDTO(appointment);
     }
@@ -71,8 +74,12 @@ public class AppointmentService {
     }
 
     private void processData(Appointment appointment, AppointmentRequestDTO dto) {
-        appointment.setProducts(productsRepository.findById(dto.productId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found")));
+        appointment.setProducts(productsRepository.findAllById(dto.productId())
+                        .stream().toList());
+        BigDecimal price = appointment.getProducts().stream()
+                .map(Products::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        appointment.setTotalPrice(price);
         appointment.setStartTime(dto.startTime());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setObservation(dto.observation());

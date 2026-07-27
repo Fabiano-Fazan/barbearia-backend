@@ -35,7 +35,7 @@ public record ProductRequestDTO(
         @Schema(description = "Duration of the product in minutes", example = "30")
         @Max(value = 60, message = "Duration must not exceed 60 minutes")
         @Min(value = 5, message = "Duration must be at least 5 minutes")
-        int durationInMinutes,
+        Integer durationInMinutes,
 
         @NotNull(message = "Active status is required")
         @Schema(description = "Indicates if the product is active", example = "true")

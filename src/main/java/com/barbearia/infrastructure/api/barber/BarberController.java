@@ -21,7 +21,7 @@ public class BarberController {
 
     private final BarberService barberService;
 
-    @GetMapping("/{me}")
+    @GetMapping("/me")
     public ResponseEntity<BarberResponseDTO> getCurrentBarber() {
         BarberResponseDTO barber = barberService.getCurrentBarber();
         return new ResponseEntity<>(barber, HttpStatus.OK);
@@ -52,10 +52,16 @@ public class BarberController {
         return new ResponseEntity<>(updatedBarber, HttpStatus.OK);
     }
 
-    @PutMapping("/{me}")
+    @PutMapping("/me")
     public ResponseEntity<BarberResponseDTO> updateCurrentBarber(@RequestBody @Valid BarberResquestDTO barberRequest){
         BarberResponseDTO updatedBarber = barberService.updateCurrentBarber(barberRequest);
         return new ResponseEntity<>(updatedBarber, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentBarber(){
+        barberService.deleteCurrentBarber();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

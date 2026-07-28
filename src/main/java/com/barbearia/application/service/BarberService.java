@@ -39,11 +39,13 @@ public class BarberService {
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    @Transactional(readOnly = true)
     public BarberResponseDTO getCurrentBarber() {
         Barber barber = authenticatedUserProvider.getCurrentBarber();
         return new BarberResponseDTO(barber);
     }
 
+    @Transactional(readOnly = true)
     public Page<BarberResponseDTO> findBarbers(String name, String phone, UUID barberId, Pageable pageable){
         Specification<Barber> specification = Specification
                 .where(BarberSpecifications.hasName(name))

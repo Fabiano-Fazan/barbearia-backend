@@ -40,6 +40,5 @@ public record AppointmentRequestDTO(
         @Schema(description = "Price of the appointment")
         BigDecimal price
 
-
 ) {
 }

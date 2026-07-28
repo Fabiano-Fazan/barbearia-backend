@@ -32,6 +32,7 @@ public class AppointmentService {
     private final AppointmentValidation appointmentValidation;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    @Transactional(readOnly = true)
     public Page<AppointmentResponseDTO> findAppointments(UUID appointmentId, UUID clientId, UUID barberId, AppointmentStatus status, Pageable pageable) {
         if(authenticatedUserProvider.isClient()){
             clientId = authenticatedUserProvider.getCurrentClient().getId();

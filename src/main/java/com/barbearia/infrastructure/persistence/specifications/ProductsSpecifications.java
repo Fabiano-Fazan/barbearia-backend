@@ -22,7 +22,7 @@ public class ProductsSpecifications {
             if (category == null || category.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            return cb.equal(cb.lower(root.get("category")), category.toLowerCase());
+            return cb.like(cb.lower(root.get("category")), "%" + category.toLowerCase() + "%");
         };
     }
 

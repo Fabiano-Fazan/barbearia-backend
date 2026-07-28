@@ -21,6 +21,7 @@ import java.util.UUID;
 public class ProductService {
     private final ProductsRepository productsRepository;
 
+    @Transactional(readOnly = true)
     public Page<ProductResponseDTO> findProducts(String name, String category, UUID productId, Pageable pageable) {
         Specification<Products> specification = Specification
                 .where(ProductsSpecifications.hasName(name))

@@ -21,7 +21,7 @@ public class ClientSpecifications {
             if (phone == null || phone.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            return cb.equal(cb.lower(root.get("phone")), phone.toLowerCase());
+            return cb.like(cb.lower(root.get("phone")),  "%" + phone.toLowerCase() + "%");
         };
     }
 

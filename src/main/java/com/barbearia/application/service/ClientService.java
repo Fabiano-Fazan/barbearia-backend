@@ -27,11 +27,13 @@ public class ClientService {
     private final UserRepository userRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    @Transactional(readOnly = true)
     public ClientResponseDTO getCurrentClient(){
         Client client = authenticatedUserProvider.getCurrentClient();
         return new ClientResponseDTO(client);
     }
 
+    @Transactional(readOnly = true)
     public Page<ClientResponseDTO> findClients(String name, String phone, UUID clientId, Pageable pageable) {
         Specification<Client> specification = Specification
                 .where(ClientSpecifications.hasName(name))

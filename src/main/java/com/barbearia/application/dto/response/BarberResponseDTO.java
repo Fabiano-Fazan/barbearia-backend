@@ -4,6 +4,7 @@ import com.barbearia.domain.entities.Barber;
 import com.barbearia.domain.entities.Products;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,9 @@ public record BarberResponseDTO(
         @Schema(description = "Indicates if the barber is active", example = "true")
         Boolean isActive,
 
+        @Schema(description = "Commission for the barber", example = "20.00%")
+        BigDecimal commissionRate,
+
         @Schema(description = "Temporary password for the barber", example = "TempPass123")
         String temporaryPassword
 ) {
@@ -38,6 +42,7 @@ public record BarberResponseDTO(
                 barber.getUser().getEmail(),
                 barber.getSpecialties().stream().map(Products::getId).toList(),
                 barber.getIsActive(),
+                barber.getCommissionRate(),
                 null
         );
     }
@@ -49,6 +54,7 @@ public record BarberResponseDTO(
                 barber.getUser().getEmail(),
                 barber.getSpecialties().stream().map(Products::getId).toList(),
                 barber.getIsActive(),
+                barber.getCommissionRate(),
                 temporaryPassword
         );
     }

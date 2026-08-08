@@ -16,7 +16,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder
 public class Appointment {
 
     @Id
@@ -32,19 +31,19 @@ public class Appointment {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @ManyToMany
     @JoinTable(
-        name = "appointment_products",
-        joinColumns = @JoinColumn(name = "appointment_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
+            name = "appointment_products",
+            joinColumns = @JoinColumn(name = "appointment_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<Products> products = new ArrayList<>();
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "barber_id", nullable = false)
     private Barber barber;
 
@@ -52,6 +51,6 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
-    @Column( name = "total_price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 }

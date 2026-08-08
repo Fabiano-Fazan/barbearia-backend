@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +26,10 @@ public record BarberResquestDTO(
 
         @NotNull(message = "List of product IDs is required")
         @Schema(description = "List of product IDs associated with the barber")
-        List<UUID> productsId
+        List<UUID> productsId,
 
+        @NotNull(message = "Commission is required")
+        @Schema(description = "Commission for the barber", example = "20.00%")
+        BigDecimal commissionRate
 ) {
 }

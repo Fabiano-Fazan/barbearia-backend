@@ -4,7 +4,6 @@ import com.barbearia.domain.enums.CommissionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -47,7 +46,6 @@ public class BarberCommission {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private LocalDateTime paidAt;
 
 }

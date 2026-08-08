@@ -2,6 +2,7 @@ package com.barbearia.domain.entities;
 
 import com.barbearia.domain.enums.PaymentMethod;
 import com.barbearia.domain.enums.TransactionCategory;
+import com.barbearia.domain.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FinancialTransaction {
+public class Financial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,7 +32,7 @@ public class FinancialTransaction {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionCategory type;
+    private TransactionType type;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -52,7 +53,6 @@ public class FinancialTransaction {
     @CreationTimestamp
     private LocalDateTime transactionDate;
 
-    @CreationTimestamp
-    private LocalDateTime updatedAt;
+    private LocalDateTime paidDate;
 
 }

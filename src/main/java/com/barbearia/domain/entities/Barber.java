@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -48,4 +49,7 @@ public class Barber {
 
     @Column(nullable = false)
     private Boolean isActive;
+
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal commissionRate;
 }

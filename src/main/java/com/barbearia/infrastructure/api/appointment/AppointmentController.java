@@ -4,6 +4,7 @@ import com.barbearia.application.dto.request.AppointmentRequestDTO;
 import com.barbearia.application.dto.response.AppointmentResponseDTO;
 import com.barbearia.application.service.AppointmentService;
 import com.barbearia.domain.enums.AppointmentStatus;
+import com.barbearia.domain.enums.PaymentMethod;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,13 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> createAppointment(@RequestBody @Valid AppointmentRequestDTO appointmentRequestDTO) {
         AppointmentResponseDTO createdAppointment = appointmentService.create(appointmentRequestDTO);
         return new ResponseEntity<>(createdAppointment, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'BARBER') ")
+    @PutMapping("/{id}")
+    public ResponseEntity<AppointmentResponseDTO> updateAppointment(@PathVariable UUID id, @RequestBody @Valid PaymentMethod paymentMethod) {
+        AppointmentResponseDTO updatedAppointment = appointmentService.update(id, paymentMethod);
+        return new ResponseEntity<>(updatedAppointment, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'BARBER', 'CLIENT') ")

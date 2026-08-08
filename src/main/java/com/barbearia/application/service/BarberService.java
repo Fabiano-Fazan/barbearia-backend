@@ -84,6 +84,7 @@ public class BarberService {
                 .phone(dto.phone())
                 .user(user)
                 .specialties(products)
+                .commissionRate(dto.commissionRate())
                 .build();
         return new BarberResponseDTO(barberRepository.save(barber), temporaryPassword);
     }
@@ -93,6 +94,7 @@ public class BarberService {
         Barber barber = barberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
         processData(barber, dto);
+        barber.setCommissionRate(dto.commissionRate());
         return new BarberResponseDTO(barberRepository.save(barber), null);
     }
 

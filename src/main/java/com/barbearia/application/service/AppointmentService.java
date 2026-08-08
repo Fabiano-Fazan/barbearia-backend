@@ -7,6 +7,7 @@ import com.barbearia.application.util.AuthenticatedUserProvider;
 import com.barbearia.domain.entities.Appointment;
 import com.barbearia.domain.entities.Products;
 import com.barbearia.domain.enums.AppointmentStatus;
+import com.barbearia.domain.enums.PaymentMethod;
 import com.barbearia.infrastructure.persistence.AppointmentRepository;
 import com.barbearia.infrastructure.persistence.ProductsRepository;
 import com.barbearia.infrastructure.persistence.specifications.AppointmentSpecifications;
@@ -31,6 +32,7 @@ public class AppointmentService {
     private final ProductsRepository productsRepository;
     private final AppointmentValidation appointmentValidation;
     private final AuthenticatedUserProvider authenticatedUserProvider;
+    private final FinancialService financialService;
 
     @Transactional(readOnly = true)
     public Page<AppointmentResponseDTO> findAppointments(UUID appointmentId, UUID clientId, UUID barberId, AppointmentStatus status, Pageable pageable) {
@@ -68,6 +70,23 @@ public class AppointmentService {
     }
 
     @Transactional
+    public AppointmentResponseDTO update(UUID appointmentId, PaymentMethod paymentMethod) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        if (authenticatedUserProvider.isBarber()
+                && !appointment.getBarber().getId().equals(authenticatedUserProvider.getCurrentBarber().getId())) {
+            throw new ForbiddenOperationException("You can only update appointments for yourself");
+        }
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.save(appointment);
+        financialService.processFinancialByAppointment(appointment, paymentMethod);
+        financialService.processCommissionByAppointment(appointment);
+        return new AppointmentResponseDTO(appointment);
+    }
+
+    @Transactional
     public void  delete(UUID id) {
         Appointment appointment = canDeleteAppointment(id);
         appointment.setStatus(AppointmentStatus.CANCELLED);
@@ -81,7 +100,7 @@ public class AppointmentService {
                 .map(Products::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         appointment.setTotalPrice(price);
-        appointment.setStartTime(dto.startTime());
+        appointment.setStartTime(dto.startTime() != null ? dto.startTime() : LocalDateTime.now());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setObservation(dto.observation());
     }

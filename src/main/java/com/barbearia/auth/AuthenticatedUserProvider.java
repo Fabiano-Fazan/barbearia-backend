@@ -1,10 +1,10 @@
 package com.barbearia.auth;
 
 import com.barbearia.barber.Barber;
+import com.barbearia.barber.BarberService;
 import com.barbearia.client.Client;
-import com.barbearia.barber.BarberRepository;
-import com.barbearia.client.ClientRepository;
-import com.barbearia.core.exceptions.ResourceNotFoundException;
+import com.barbearia.client.ClientService;
+import com.barbearia.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -15,21 +15,19 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AuthenticatedUserProvider {
 
-    private final ClientRepository clientRepository;
-    private final BarberRepository barberRepository;
+    private final ClientService clientService;
+    private final BarberService barberService;
 
     public User getCurrentUser() {
         return (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
     }
 
     public Client getCurrentClient() {
-        return clientRepository.findByUserId(getCurrentUser().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found for logged user"));
+        return clientService.getClientByUserId(getCurrentUser().getId());
     }
 
     public Barber getCurrentBarber() {
-        return barberRepository.findByUserId(getCurrentUser().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Barber not found for logged user"));
+        return barberService.getBarberByUserId(getCurrentUser().getId());
     }
 
     public boolean isClient() {

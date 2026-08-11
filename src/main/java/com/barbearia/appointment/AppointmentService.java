@@ -6,9 +6,9 @@ import com.barbearia.financial.FinancialService;
 import com.barbearia.auth.AuthenticatedUserProvider;
 import com.barbearia.product.Product;
 import com.barbearia.financial.PaymentMethod;
-import com.barbearia.product.ProductRepository;
 import com.barbearia.core.exceptions.ForbiddenOperationException;
 import com.barbearia.core.exceptions.ResourceNotFoundException;
+import com.barbearia.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class AppointmentService {
 
     private  final AppointmentRepository appointmentRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final AppointmentValidation appointmentValidation;
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final FinancialService financialService;
@@ -44,6 +44,12 @@ public class AppointmentService {
                 .and(AppointmentSpecifications.hasBarber(barberId));
         return appointmentRepository.findAll(specification, pageable)
                 .map(AppointmentResponseDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Appointment getAppointmentById(UUID id) {
+        return appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
     }
 
     @Transactional
@@ -90,8 +96,7 @@ public class AppointmentService {
     }
 
     private void processData(Appointment appointment, AppointmentRequestDTO dto) {
-        appointment.setProducts(productRepository.findAllById(dto.productId())
-                        .stream().toList());
+        appointment.setProducts(productService.getAllProductsById(dto.productId()));
         BigDecimal price = appointment.getProducts().stream()
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -102,8 +107,7 @@ public class AppointmentService {
     }
 
     private Appointment canDeleteAppointment(UUID id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+        Appointment appointment = this.getAppointmentById(id);
         if (authenticatedUserProvider.isClient()
                 && !appointment.getClient().getId().equals(authenticatedUserProvider.getCurrentClient().getId())) {
             throw new ForbiddenOperationException("You can only cancel your own appointments");

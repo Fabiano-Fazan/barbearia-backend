@@ -1,16 +1,16 @@
 package com.barbearia.financial;
 
+import com.barbearia.appointment.AppointmentService;
 import com.barbearia.auth.AuthenticatedUserProvider;
+import com.barbearia.barber.BarberService;
 import com.barbearia.core.exceptions.ForbiddenOperationException;
 import com.barbearia.financial.dto.PayCommissionRequestDTO;
 import com.barbearia.financial.dto.TransactionRequestDTO;
 import com.barbearia.appointment.Appointment;
 import com.barbearia.barber.Barber;
-import com.barbearia.appointment.AppointmentRepository;
 import com.barbearia.financial.dto.BarberCommissionResponseDTO;
 import com.barbearia.financial.dto.FinancialSummaryDTO;
 import com.barbearia.financial.dto.TransactionResponseDTO;
-import com.barbearia.barber.BarberRepository;
 import com.barbearia.core.exceptions.EntityAlreadyExistsException;
 import com.barbearia.core.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,8 @@ public class FinancialService {
 
     private final FinancialRepository financialRepository;
     private final BarberCommissionRepository barberCommissionRepository;
-    private final BarberRepository barberRepository;
-    private final AppointmentRepository appointmentRepository;
+    private final BarberService barberService;
+    private final AppointmentService appointmentService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional(readOnly = true)
@@ -90,14 +90,12 @@ public class FinancialService {
 
         Barber barber = null;
         if (dto.barberId() != null) {
-            barber = barberRepository.findById(dto.barberId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
+            barber = barberService.getBarberById(dto.barberId());
         }
 
         Appointment appointment = null;
         if (dto.appointmentId() != null) {
-            appointment = appointmentRepository.findById(dto.appointmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+            appointment = appointmentService.getAppointmentById(dto.appointmentId());
         }
 
         Financial financial = Financial.builder()

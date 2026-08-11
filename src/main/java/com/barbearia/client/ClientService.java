@@ -3,9 +3,9 @@ package com.barbearia.client;
 import com.barbearia.client.dto.ClientRequestDTO;
 import com.barbearia.client.dto.ClientResponseDTO;
 import com.barbearia.auth.AuthenticatedUserProvider;
-import com.barbearia.auth.User;
-import com.barbearia.auth.UserRepository;
+import com.barbearia.user.User;
 import com.barbearia.core.exceptions.ResourceNotFoundException;
+import com.barbearia.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,13 +21,19 @@ import java.util.UUID;
 public class ClientService {
 
     private final ClientRepository clientRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional(readOnly = true)
     public ClientResponseDTO getCurrentClient() {
         Client client = authenticatedUserProvider.getCurrentClient();
         return new ClientResponseDTO(client);
+    }
+
+    @Transactional(readOnly = true)
+    public Client getClientByUserId(UUID id) {
+        return clientRepository.findByUserId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
     }
 
     @Transactional(readOnly = true)
@@ -60,9 +66,8 @@ public class ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
         User user = client.getUser();
-
         clientRepository.delete(client);
-        userRepository.delete(user);
+        userService.deleteUser(user.getId());
     }
 
     @Transactional
@@ -70,7 +75,7 @@ public class ClientService {
         Client client = authenticatedUserProvider.getCurrentClient();
         User user = client.getUser();
         clientRepository.delete(client);
-        userRepository.delete(user);
+        userService.deleteUser(user.getId());
     }
 
     @Transactional

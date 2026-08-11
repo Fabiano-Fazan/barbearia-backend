@@ -3,9 +3,9 @@ package com.barbearia.auth;
 import com.barbearia.auth.dto.LoginRequestDTO;
 import com.barbearia.auth.dto.RegisterRequestDTO;
 import com.barbearia.auth.dto.TokenResponseDTO;
+import com.barbearia.core.exceptions.EntityAlreadyExistsException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register-admin")
-    public ResponseEntity<Void> registerAdmin(@RequestBody @Valid RegisterRequestDTO dto) throws BadRequestException {
+    public ResponseEntity<Void> registerAdmin(@RequestBody @Valid RegisterRequestDTO dto) throws EntityAlreadyExistsException {
         authService.registerAdmin(dto);
         return ResponseEntity.ok().build();
     }

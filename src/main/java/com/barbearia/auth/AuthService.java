@@ -1,50 +1,43 @@
 package com.barbearia.auth;
 
-import com.barbearia.auth.dto.ChangePasswordRequestDTO;
 import com.barbearia.auth.dto.LoginRequestDTO;
 import com.barbearia.auth.dto.RegisterRequestDTO;
 import com.barbearia.auth.dto.TokenResponseDTO;
-import com.barbearia.core.exceptions.ResourceNotFoundException;
+import com.barbearia.core.exceptions.EntityAlreadyExistsException;
+import com.barbearia.role.Role;
+import com.barbearia.role.RoleRepository;
+import com.barbearia.user.User;
+import com.barbearia.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
 
     @Transactional
-    public void registerAdmin(RegisterRequestDTO dto) throws BadRequestException {
+    public void registerAdmin(RegisterRequestDTO dto) {
 
-        if(userRepository.existsByEmail(dto.email())) {
-            throw new BadRequestException("User already exists");
+        if(userService.existsByEmail(dto.email()) != null) {
+            throw new EntityAlreadyExistsException("User already exists");
         }
 
         Role roles = roleRepository.findByName("ROLE_ADMIN")
                 .orElseGet(() -> roleRepository.save(Role.builder()
                         .name("ROLE_ADMIN")
                         .build()));
-
-        userRepository.save(User.builder()
-                .name(dto.name())
-                .email(dto.email())
-                .password(passwordEncoder.encode(dto.password()))
-                .roles(Set.of(roles))
-                .build());
+        userService.createUserByAdmin(dto, roles);
     }
 
     public TokenResponseDTO login(LoginRequestDTO dto) throws BadCredentialsException {
@@ -66,14 +59,5 @@ public class AuthService {
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid credentials");
         }
-    }
-
-    @Transactional
-    public void changePassword(String email, ChangePasswordRequestDTO dto) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        user.setPassword(passwordEncoder.encode(dto.newPassword()));
-        user.setMustChangePassword(false);
-        userRepository.save(user);
     }
 }

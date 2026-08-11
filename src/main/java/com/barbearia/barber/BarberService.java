@@ -3,25 +3,22 @@ package com.barbearia.barber;
 import com.barbearia.barber.dto.BarberRequestDTO;
 import com.barbearia.barber.dto.BarberResponseDTO;
 import com.barbearia.auth.AuthenticatedUserProvider;
-import com.barbearia.auth.TemporaryPasswordGenerator;
 import com.barbearia.product.Product;
-import com.barbearia.auth.Role;
-import com.barbearia.auth.User;
-import com.barbearia.product.ProductRepository;
-import com.barbearia.auth.RoleRepository;
-import com.barbearia.auth.UserRepository;
+import com.barbearia.role.Role;
+import com.barbearia.user.User;
+import com.barbearia.role.RoleRepository;
 import com.barbearia.core.exceptions.EntityAlreadyExistsException;
 import com.barbearia.core.exceptions.ResourceNotFoundException;
+import com.barbearia.product.ProductService;
+import com.barbearia.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -29,17 +26,27 @@ import java.util.UUID;
 public class BarberService {
 
     private final BarberRepository barberRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final RoleRepository roleRepository;
-    private final ProductRepository productRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final TemporaryPasswordGenerator temporaryPasswordGenerator;
+    private final ProductService productService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional(readOnly = true)
     public BarberResponseDTO getCurrentBarber() {
         Barber barber = authenticatedUserProvider.getCurrentBarber();
         return new BarberResponseDTO(barber);
+    }
+
+    @Transactional(readOnly = true)
+    public Barber getBarberByUserId(UUID id) {
+        return barberRepository.findByUserId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public Barber getBarberById(UUID id) {
+        return barberRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +62,7 @@ public class BarberService {
     @Transactional
     public BarberResponseDTO create (BarberRequestDTO dto){
 
-        if (userRepository.existsByEmail(dto.email())) {
+        if (userService.existsByEmail(dto.email()) != null) {
             throw new EntityAlreadyExistsException("User already exists");
         }
 
@@ -64,25 +71,18 @@ public class BarberService {
                         .name("ROLE_BARBER")
                         .build()));
 
-        String temporaryPassword = temporaryPasswordGenerator.generate();
+        userService.createUserByBarber(dto, barberRole);
 
-        User user = userRepository.save(User.builder()
-                .name(dto.name())
-                .email(dto.email())
-                .password(passwordEncoder.encode(temporaryPassword))
-                .roles(Set.of(barberRole))
-                .mustChangePassword(true)
-                .build());
-        List<Product> products = productRepository.findAllById(dto.productsId());
+        List<Product> products = productService.getAllProductsById(dto.productsId());
 
         Barber barber = Barber.builder()
                 .name(dto.name())
                 .phone(dto.phone())
-                .user(user)
+                .user(userService.getUserByEmail(dto.email()))
                 .specialties(products)
                 .commissionRate(dto.commissionRate())
                 .build();
-        return new BarberResponseDTO(barberRepository.save(barber), temporaryPassword);
+        return new BarberResponseDTO(barberRepository.save(barber), barber.getUser().getPassword());
     }
 
     @Transactional
@@ -106,7 +106,7 @@ public class BarberService {
         Barber barber = authenticatedUserProvider.getCurrentBarber();
         User user = barber.getUser();
         barberRepository.delete(barber);
-        userRepository.delete(user);
+        userService.deleteUser(user.getId());
     }
 
     @Transactional
@@ -115,12 +115,12 @@ public class BarberService {
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
         User user = barber.getUser();
         barberRepository.delete(barber);
-        userRepository.delete(user);
+        userService.deleteUser(user.getId());
     }
 
     private void processData(Barber barber, BarberRequestDTO dto) {
         barber.setName(dto.name());
         barber.setPhone(dto.phone());
-        barber.setSpecialties(productRepository.findAllById(dto.productsId()));
+        barber.setSpecialties(productService.getAllProductsById(dto.productsId()));
     }
 }

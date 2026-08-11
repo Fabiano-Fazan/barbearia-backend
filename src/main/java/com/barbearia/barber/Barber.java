@@ -1,6 +1,6 @@
 package com.barbearia.barber;
 
-import com.barbearia.auth.User;
+import com.barbearia.user.User;
 import com.barbearia.product.Product;
 import jakarta.persistence.*;
 import lombok.*;

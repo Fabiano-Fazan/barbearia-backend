@@ -1,4 +1,4 @@
-package com.barbearia.auth;
+package com.barbearia.user;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;

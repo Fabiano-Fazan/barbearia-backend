@@ -1,4 +1,4 @@
-package com.barbearia.auth;
+package com.barbearia.role;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

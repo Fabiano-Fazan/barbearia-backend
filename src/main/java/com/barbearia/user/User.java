@@ -1,5 +1,6 @@
-package com.barbearia.auth;
+package com.barbearia.user;
 
+import com.barbearia.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SoftDelete;

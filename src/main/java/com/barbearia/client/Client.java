@@ -1,6 +1,6 @@
 package com.barbearia.client;
 
-import com.barbearia.auth.User;
+import com.barbearia.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

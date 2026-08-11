@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,6 +27,11 @@ public class ProductService {
                 .or(ProductSpecifications.hasId(productId));
         return productRepository.findAll(specification, pageable)
                 .map(ProductResponseDTO::new);
+     }
+
+     @Transactional(readOnly = true)
+     public List<Product> getAllProductsById(List<UUID> id) {
+        return productRepository.findAllById(id);
      }
 
      @Transactional

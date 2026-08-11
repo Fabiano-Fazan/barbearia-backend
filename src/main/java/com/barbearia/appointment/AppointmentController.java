@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v1/appointments")
 @RequiredArgsConstructor
-public class AppointmentController {
+class AppointmentController {
 
     private final AppointmentService appointmentService;
 

@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface FinancialRepository extends JpaRepository<Financial, UUID>, JpaSpecificationExecutor<Financial> {
+interface FinancialRepository extends JpaRepository<Financial, UUID>, JpaSpecificationExecutor<Financial> {
     Optional<Financial> findByAppointmentId(UUID appointmentId);
 }

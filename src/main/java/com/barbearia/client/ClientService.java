@@ -31,12 +31,6 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public Client getClientByUserId(UUID id) {
-        return clientRepository.findByUserId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
-    }
-
-    @Transactional(readOnly = true)
     public Page<ClientResponseDTO> findClients(String name, String phone, UUID clientId, Pageable pageable) {
         Specification<Client> specification = Specification
                 .where(ClientSpecifications.hasName(name))

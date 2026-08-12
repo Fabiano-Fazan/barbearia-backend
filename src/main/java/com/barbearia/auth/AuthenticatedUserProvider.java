@@ -1,9 +1,10 @@
 package com.barbearia.auth;
 
 import com.barbearia.barber.Barber;
-import com.barbearia.barber.BarberService;
+import com.barbearia.barber.BarberRepository;
 import com.barbearia.client.Client;
-import com.barbearia.client.ClientService;
+import com.barbearia.client.ClientRepository;
+import com.barbearia.core.exceptions.ResourceNotFoundException;
 import com.barbearia.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,19 +16,21 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AuthenticatedUserProvider {
 
-    private final ClientService clientService;
-    private final BarberService barberService;
+    private final BarberRepository barberRepository;
+    private final ClientRepository clientRepository;
 
     public User getCurrentUser() {
         return (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
     }
 
     public Client getCurrentClient() {
-        return clientService.getClientByUserId(getCurrentUser().getId());
+        return clientRepository.findByUserId(getCurrentUser().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
     }
 
     public Barber getCurrentBarber() {
-        return barberService.getBarberByUserId(getCurrentUser().getId());
+        return barberRepository.findByUserId(getCurrentUser().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
     }
 
     public boolean isClient() {
@@ -36,7 +39,6 @@ public class AuthenticatedUserProvider {
     public boolean isBarber() {
         return hasRole("ROLE_BARBER");
     }
-
 
     private boolean hasRole(String role) {
         return getCurrentUser().getAuthorities().stream()

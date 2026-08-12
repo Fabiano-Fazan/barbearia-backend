@@ -2,7 +2,7 @@ package com.barbearia.auth;
 
 import com.barbearia.client.ClientService;
 import com.barbearia.role.Role;
-import com.barbearia.role.RoleRepository;
+import com.barbearia.role.RoleService;
 import com.barbearia.user.User;
 import com.barbearia.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
     private final UserService userService;
     private final ClientService clientService;
     private final TokenProvider tokenProvider;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     @Value("${GOOGLE_REDIRECT_URI}")
     private String redirectUri;
@@ -40,10 +40,7 @@ public class OAuth2LoginSuccessHandler  extends SimpleUrlAuthenticationSuccessHa
             }
             String email = oAuth2User.getAttribute("email");
             String name = oAuth2User.getAttribute("name");
-            Role roles = roleRepository.findByName("ROLE_CLIENT")
-                    .orElseGet(() -> roleRepository.save(Role.builder()
-                            .name("ROLE_CLIENT")
-                            .build()));
+            Role roles = roleService.findByName("ROLE_CLIENT");
             User user = userService.createUserByClient(name, email, roles);
             clientService.createFromOAuth2(user, name);
             String token = tokenProvider.getToken(authentication);

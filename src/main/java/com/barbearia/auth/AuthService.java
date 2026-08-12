@@ -5,7 +5,7 @@ import com.barbearia.auth.dto.RegisterRequestDTO;
 import com.barbearia.auth.dto.TokenResponseDTO;
 import com.barbearia.core.exceptions.EntityAlreadyExistsException;
 import com.barbearia.role.Role;
-import com.barbearia.role.RoleRepository;
+import com.barbearia.role.RoleService;
 import com.barbearia.user.User;
 import com.barbearia.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserService userService;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
 
@@ -33,10 +33,7 @@ public class AuthService {
             throw new EntityAlreadyExistsException("User already exists");
         }
 
-        Role roles = roleRepository.findByName("ROLE_ADMIN")
-                .orElseGet(() -> roleRepository.save(Role.builder()
-                        .name("ROLE_ADMIN")
-                        .build()));
+        Role roles = roleService.findByName("ROLE_ADMIN");
         userService.createUserByAdmin(dto, roles);
     }
 

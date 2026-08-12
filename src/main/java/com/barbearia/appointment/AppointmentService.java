@@ -30,6 +30,7 @@ public class AppointmentService {
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final FinancialService financialService;
 
+
     @Transactional(readOnly = true)
     public Page<AppointmentResponseDTO> findAppointments(UUID appointmentId, UUID clientId, UUID barberId, AppointmentStatus status, Pageable pageable) {
         if(authenticatedUserProvider.isClient()){
@@ -46,7 +47,6 @@ public class AppointmentService {
                 .map(AppointmentResponseDTO::new);
     }
 
-    @Transactional(readOnly = true)
     public Appointment getAppointmentById(UUID id) {
         return appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -105,6 +105,7 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setObservation(dto.observation());
     }
+
 
     private Appointment canDeleteAppointment(UUID id) {
         Appointment appointment = this.getAppointmentById(id);

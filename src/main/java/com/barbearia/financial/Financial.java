@@ -43,11 +43,11 @@ public class Financial {
     @Column(nullable = false)
     private PaymentMethod  paymentMethod;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "appointment_id", nullable = false)
     private Appointment appointment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "barber_id",nullable = false)
     private Barber barber;
 

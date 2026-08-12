@@ -33,7 +33,7 @@ public class Appointment {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
@@ -45,7 +45,7 @@ public class Appointment {
     )
     private List<Product> products = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "barber_id", nullable = false)
     private Barber barber;
 

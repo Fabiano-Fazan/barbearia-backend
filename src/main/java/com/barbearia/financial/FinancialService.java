@@ -1,6 +1,6 @@
 package com.barbearia.financial;
 
-import com.barbearia.appointment.AppointmentService;
+import com.barbearia.appointment.AppointmentRepository;
 import com.barbearia.auth.AuthenticatedUserProvider;
 import com.barbearia.barber.BarberService;
 import com.barbearia.core.exceptions.ForbiddenOperationException;
@@ -30,7 +30,7 @@ public class FinancialService {
     private final FinancialRepository financialRepository;
     private final BarberCommissionRepository barberCommissionRepository;
     private final BarberService barberService;
-    private final AppointmentService appointmentService;
+    private final AppointmentRepository appointmentRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional(readOnly = true)
@@ -95,7 +95,8 @@ public class FinancialService {
 
         Appointment appointment = null;
         if (dto.appointmentId() != null) {
-            appointment = appointmentService.getAppointmentById(dto.appointmentId());
+            appointment = appointmentRepository.findById(dto.appointmentId()).orElseThrow(()
+                    -> new ResourceNotFoundException("Appointment not found"));
         }
 
         Financial financial = Financial.builder()

@@ -5,8 +5,8 @@ import com.barbearia.barber.dto.BarberResponseDTO;
 import com.barbearia.auth.AuthenticatedUserProvider;
 import com.barbearia.product.Product;
 import com.barbearia.role.Role;
+import com.barbearia.role.RoleService;
 import com.barbearia.user.User;
-import com.barbearia.role.RoleRepository;
 import com.barbearia.core.exceptions.EntityAlreadyExistsException;
 import com.barbearia.core.exceptions.ResourceNotFoundException;
 import com.barbearia.product.ProductService;
@@ -27,7 +27,7 @@ public class BarberService {
 
     private final BarberRepository barberRepository;
     private final UserService userService;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final ProductService productService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
@@ -35,12 +35,6 @@ public class BarberService {
     public BarberResponseDTO getCurrentBarber() {
         Barber barber = authenticatedUserProvider.getCurrentBarber();
         return new BarberResponseDTO(barber);
-    }
-
-    @Transactional(readOnly = true)
-    public Barber getBarberByUserId(UUID id) {
-        return barberRepository.findByUserId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
     }
 
     @Transactional(readOnly = true)
@@ -66,11 +60,7 @@ public class BarberService {
             throw new EntityAlreadyExistsException("User already exists");
         }
 
-        Role barberRole = roleRepository.findByName("ROLE_BARBER")
-                .orElseGet(() -> roleRepository.save(Role.builder()
-                        .name("ROLE_BARBER")
-                        .build()));
-
+        Role barberRole = roleService.findByName("ROLE_BARBER");
         userService.createUserByBarber(dto, barberRole);
 
         List<Product> products = productService.getAllProductsById(dto.productsId());

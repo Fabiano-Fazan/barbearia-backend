@@ -7,6 +7,7 @@ import com.barbearia.barber.dto.BarberRequestDTO;
 import com.barbearia.core.exceptions.ResourceNotFoundException;
 import com.barbearia.role.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
+
+    @Value("${CLIENT_PASSWORD}")
+    private String clientPassword;
 
     @Transactional(readOnly = true)
     public User getUserById(UUID id) {
@@ -67,7 +71,7 @@ public class UserService {
         return userRepository.save(User.builder()
                 .name(name)
                 .email(email)
-                .password(passwordEncoder.encode("defaultPassword"))
+                .password(passwordEncoder.encode(clientPassword))
                 .roles(Set.of(roles))
                 .build());
     }

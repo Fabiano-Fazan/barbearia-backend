@@ -1,0 +1,58 @@
+package com.barbearia.financial.application.dto;
+
+import com.barbearia.financial.domain.model.Transaction;
+import com.barbearia.financial.domain.model.PaymentMethod;
+import com.barbearia.financial.domain.model.TransactionCategory;
+import com.barbearia.financial.domain.model.TransactionType;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record TransactionResponseDTO(
+
+        @Schema(description = "Transaction ID", example = "123e4567-e89b-12d3-a456-426614174000")
+        UUID transactionId,
+
+        @Schema(description = "Transaction description", example = "Payment for haircut")
+        String description,
+
+        @Schema(description = "Transaction type", example = "INCOME")
+        TransactionType type,
+
+        @Schema(description = "Transaction category", example = "SERVICE")
+        TransactionCategory category,
+
+        @Schema(description = "Payment method", example = "CREDIT_CARD")
+        PaymentMethod method,
+
+        @Schema(description = "Transaction date", example = "2023-01-01T10:00:00")
+        LocalDateTime transactionDate,
+
+        @Schema(description = "Paid date", example = "2023-01-01T10:00:00")
+        LocalDateTime paidDate,
+
+        @Schema(description = "Barber ID", example = "123e4567-e89b-12d3-a456-426614174000")
+        UUID barberId,
+
+        @Schema(description = "Appointment ID", example = "123e4567-e89b-12d3-a456-426614174000")
+        UUID appointmentId,
+
+        @Schema(description = "Barber name", example = "John Doe")
+        String barberName
+) {
+    public TransactionResponseDTO(Transaction transaction) {
+        this(
+                transaction.getId(),
+                transaction.getDescription(),
+                transaction.getType(),
+                transaction.getCategory(),
+                transaction.getPaymentMethod(),
+                transaction.getTransactionDate(),
+                transaction.getPaidDate(),
+                transaction.getBarberId(),
+                transaction.getAppointmentId(),
+                transaction.getBarberName()
+        );
+    }
+}

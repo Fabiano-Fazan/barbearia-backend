@@ -38,8 +38,10 @@ public class FinancialApplicationService {
         List<Transaction> transactions = financialRepository.findAll();
         BigDecimal incomes = sum(transactions, TransactionType.INCOME);
         BigDecimal expenses = sum(transactions, TransactionType.EXPENSE);
-        BigDecimal pending = commissionRepository.findAll().stream().filter(c -> c.getStatus() == CommissionStatus.PENDING)
-                .map(Commission::getCommissionAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal pending = commissionRepository.findAll().stream()
+                .filter(c -> c.getStatus() == CommissionStatus.PENDING)
+                .map(Commission::getCommissionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         long rendered = transactions.stream().filter(t -> t.getCategory() == TransactionCategory.SALE_SERVICE).count();
         return new FinancialSummaryDTO(incomes, expenses, incomes.subtract(expenses), pending, rendered);
     }
@@ -58,46 +60,69 @@ public class FinancialApplicationService {
                 .paymentMethod(dto.paymentMethod())
                 .barberId(dto.barberId())
                 .barberName(barber != null ? barber.getName() : null)
-                .appointmentId(dto.appointmentId()).build();
+                .appointmentId(dto.appointmentId())
+                .build();
         return new TransactionResponseDTO(financialRepository.save(transaction));
     }
 
     @Transactional
     public List<BarberCommissionResponseDTO> payCommissions(PayCommissionRequestDTO dto) {
-
-        List<Commission> commissions = commissionRepository.findAllById(dto.commissionId());
-        if (commissions.isEmpty())
-            throw new ResourceNotFoundException("Commissions not found");
+        var requestedIds = dto.commissionId().stream().distinct().toList();
+        var commissions = commissionRepository.findAllById(requestedIds);
+        if (commissions.size() != requestedIds.size() || commissions.isEmpty()) {
+            throw new ResourceNotFoundException("Some commissions not found");
+        }
         UUID barberId = commissions.getFirst().getBarberId();
         String barberName = commissions.getFirst().getBarberName();
         if (commissions.stream().anyMatch(c -> !barberId.equals(c.getBarberId())))
             throw new IllegalArgumentException("All commissions must belong to the same barber");
         commissions.forEach(Commission::pay);
         commissionRepository.saveAll(commissions);
-        BigDecimal total = commissions.stream().map(Commission::getCommissionAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        financialRepository.save(Transaction.builder().description("Payment for commissions - Barber: " + barberName)
-                .amount(total).type(TransactionType.EXPENSE).category(TransactionCategory.BARBER_COMMISSION)
-                .paymentMethod(dto.paymentMethod()).barberId(barberId).barberName(barberName).build());
+        BigDecimal total = commissions.stream().map(Commission::getCommissionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        financialRepository.save(Transaction.builder()
+                .description("Payment for commissions - Barber: " + barberName)
+                .amount(total)
+                .type(TransactionType.EXPENSE)
+                .category(TransactionCategory.BARBER_COMMISSION)
+                .paymentMethod(dto.paymentMethod())
+                .barberId(barberId)
+                .barberName(barberName)
+                .build());
         return commissions.stream().map(BarberCommissionResponseDTO::new).toList();
     }
 
     @Transactional
     public void registerCompletedAppointment(AppointmentCompletedEvent event) {
+
         financialRepository.findByAppointmentId(event.appointmentId()).ifPresent(t -> {
             throw new EntityAlreadyExistsException("Financial transaction already exists for this appointment");
         });
-        financialRepository.save(Transaction.builder().description("Income from appointment #" + event.appointmentId())
+        financialRepository.save(Transaction.builder()
+                .description("Income from appointment #" + event.appointmentId())
                 .amount(event.totalAmount()).type(TransactionType.INCOME).category(TransactionCategory.SALE_SERVICE)
-                .paymentMethod(event.paymentMethod()).appointmentId(event.appointmentId()).barberId(event.barberId())
-                .barberName(event.barberName()).build());
+                .paymentMethod(event.paymentMethod())
+                .appointmentId(event.appointmentId())
+                .barberId(event.barberId())
+                .barberName(event.barberName())
+                .build());
+
         BigDecimal amount = event.totalAmount().multiply(event.commissionRate())
                 .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-        commissionRepository.save(Commission.builder().barberId(event.barberId()).barberName(event.barberName())
-                .appointmentId(event.appointmentId()).serviceAmount(event.totalAmount()).commissionRate(event.commissionRate())
-                .commissionAmount(amount).status(CommissionStatus.PENDING).build());
+        commissionRepository.save(Commission.builder()
+                .barberId(event.barberId())
+                .barberName(event.barberName())
+                .appointmentId(event.appointmentId())
+                .serviceAmount(event.totalAmount())
+                .commissionRate(event.commissionRate())
+                .commissionAmount(amount)
+                .status(CommissionStatus.PENDING)
+                .build());
     }
 
     private BigDecimal sum(List<Transaction> values, TransactionType type) {
-        return values.stream().filter(t -> t.getType() == type).map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return values.stream().filter(t -> t.getType() == type)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

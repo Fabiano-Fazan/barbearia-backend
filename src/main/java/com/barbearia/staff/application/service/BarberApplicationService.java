@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -33,6 +34,12 @@ public class BarberApplicationService {
     private final CatalogApplicationService productService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final BarberMapper mapper;
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void lockBarber(UUID barberId) {
+        barberRepository.findByIdForUpdate(barberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
+    }
 
     @Transactional(readOnly = true)
     public BarberResponseDTO getCurrentBarber() {

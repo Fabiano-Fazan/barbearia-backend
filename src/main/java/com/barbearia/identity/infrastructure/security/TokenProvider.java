@@ -4,6 +4,7 @@ package com.barbearia.identity.infrastructure.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +37,7 @@ public class TokenProvider {
     }
        
 
-    public String validateToken(String token) {
+    public String validateToken(String token) throws BadRequestException {
         try {
 
             Algorithm algorithm = Algorithm.HMAC512(secret);
@@ -46,7 +47,7 @@ public class TokenProvider {
                     .getSubject();
 
         } catch (JWTVerificationException e) {
-            throw new RuntimeException("Invalid token", e);
+            throw new BadRequestException("Invalid token", e);
         }
     }
 

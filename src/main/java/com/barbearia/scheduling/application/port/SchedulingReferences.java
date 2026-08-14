@@ -12,4 +12,6 @@ public interface SchedulingReferences {
     record ClientData(UUID id, String name) {}
     record BarberData(UUID id, String name, BigDecimal commissionRate) {}
     record ProductData(UUID id, String name, BigDecimal price, int durationInMinutes) {}
+    void lockBarber(UUID barberId);
+    void lockClient(UUID clientId);
 }

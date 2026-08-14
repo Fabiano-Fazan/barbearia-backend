@@ -40,7 +40,8 @@ public class AppointmentApplicationService {
         if (currentUser.isClient()) clientId = currentUser.getCurrentClientId();
         else if (currentUser.isBarber()) barberId = currentUser.getCurrentBarberId();
         Specification<Appointment> spec = Specification.where(AppointmentSpecifications.hasId(id))
-                .and(AppointmentSpecifications.hasStatus(status)).and(AppointmentSpecifications.hasClient(clientId))
+                .and(AppointmentSpecifications.hasStatus(status))
+                .and(AppointmentSpecifications.hasClient(clientId))
                 .and(AppointmentSpecifications.hasBarber(barberId));
         return repository.findAll(spec, pageable).map(mapper::toResponse);
     }
@@ -53,13 +54,16 @@ public class AppointmentApplicationService {
     @Transactional
     public AppointmentResponseDTO create(AppointmentRequestDTO dto) {
         authorizeCreate(dto);
+        references.lockBarber(dto.barberId());
+        references.lockClient(dto.clientId());
         var client = references.getClient(dto.clientId());
         var barber = references.getBarber(dto.barberId());
-        var products = references.getProducts(dto.productId());
-        if (products.size() != dto.productId().stream().distinct().count()) throw new ResourceNotFoundException("One or more products not found");
+        var products = references.getProducts(dto.productIds());
+        if (products.size() != dto.productIds().stream().distinct().count()) throw new ResourceNotFoundException("One or more products not found");
         List<AppointmentProduct> snapshots = products.stream().map(p ->
                 new AppointmentProduct(p.id(), p.name(), p.price(), p.durationInMinutes())).toList();
-        int duration = snapshots.stream().mapToInt(AppointmentProduct::durationInMinutes).sum();
+        int duration = snapshots.stream()
+                .mapToInt(AppointmentProduct::durationInMinutes).sum();
         TimeSlot slot = new TimeSlot(dto.startTime(), dto.startTime().plusMinutes(duration));
         conflictChecker.ensureNoConflict(dto.barberId(), dto.clientId(), slot);
         return mapper.toResponse(repository.save(new Appointment(client.id(), client.name(), barber.id(),

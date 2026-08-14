@@ -22,10 +22,12 @@ public class SchedulingReferencesAdapter implements SchedulingReferences {
         var value = clientService.getClientById(id);
         return new ClientData(value.getId(), value.getName());
     }
+
     public BarberData getBarber(UUID id) {
         var value = barberService.getBarberById(id);
         return new BarberData(value.getId(), value.getName(), value.getCommissionRate());
     }
+
     public List<ProductData> getProducts(List<UUID> ids) {
         return catalogService.getAllProductsById(ids).stream()
                 .map(p -> new ProductData(
@@ -33,6 +35,18 @@ public class SchedulingReferencesAdapter implements SchedulingReferences {
                         p.getName(),
                         p.getPrice(),
                         p.getDurationInMinutes()))
-                        .toList();
+                .toList();
+    }
+
+    @Override
+    public void lockBarber(UUID barberId) {
+        barberService.lockBarber(barberId);
+
+    }
+
+    @Override
+    public void lockClient(UUID clientId) {
+        clientService.lockClient(clientId);
     }
 }
+

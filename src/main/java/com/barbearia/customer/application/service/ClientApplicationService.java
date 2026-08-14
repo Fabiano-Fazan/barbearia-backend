@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -28,6 +29,12 @@ public class ClientApplicationService {
     private final UserService userService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final ClientMapper mapper;
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void lockClient(UUID clientId) {
+        clientRepository.findByIdForUpdate(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+    }
 
     @Transactional(readOnly = true)
     public Client getClientById(UUID id) throws ResourceNotFoundException {

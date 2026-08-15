@@ -3,9 +3,8 @@ package com.barbearia.scheduling.application.service;
 import com.barbearia.scheduling.application.dto.*;
 import com.barbearia.scheduling.domain.event.AppointmentCompletedEvent;
 import com.barbearia.scheduling.domain.model.*;
+import com.barbearia.scheduling.domain.repository.AppointmentRepository;
 import com.barbearia.scheduling.domain.service.AppointmentConflictChecker;
-import com.barbearia.scheduling.infrastructure.persistence.AppointmentSpecifications;
-import com.barbearia.scheduling.infrastructure.persistence.SpringDataAppointmentRepository;
 import com.barbearia.identity.application.security.AuthenticatedUserProvider;
 import com.barbearia.scheduling.application.port.SchedulingReferences;
 import com.barbearia.shared.domain.exception.ForbiddenOperationException;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AppointmentApplicationService {
 
-    private final SpringDataAppointmentRepository repository;
+    private final AppointmentRepository repository;
     private final SchedulingReferences references;
     private final AppointmentConflictChecker conflictChecker;
     private final AuthenticatedUserProvider currentUser;
@@ -39,11 +37,7 @@ public class AppointmentApplicationService {
     public Page<AppointmentResponseDTO> findAppointments(UUID id, UUID clientId, UUID barberId, AppointmentStatus status, Pageable pageable) {
         if (currentUser.isClient()) clientId = currentUser.getCurrentClientId();
         else if (currentUser.isBarber()) barberId = currentUser.getCurrentBarberId();
-        Specification<Appointment> spec = Specification.where(AppointmentSpecifications.hasId(id))
-                .and(AppointmentSpecifications.hasStatus(status))
-                .and(AppointmentSpecifications.hasClient(clientId))
-                .and(AppointmentSpecifications.hasBarber(barberId));
-        return repository.findAll(spec, pageable).map(mapper::toResponse);
+        return repository.find(id, clientId, barberId, status, pageable).map(mapper::toResponse);
     }
 
     @Transactional(readOnly = true)
